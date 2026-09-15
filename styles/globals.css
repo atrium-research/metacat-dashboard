@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@source inline("{text,bg,border}-{ariadne,clarin,gotriple,sshomp}");
+
+@theme {
+  --color-ariadne: #9E3B2E;
+  --color-clarin: #0872CA;
+  --color-gotriple: #2B2B28;
+  --color-sshomp: #707A3A;
+}
+
+@theme inline {
+	--breakpoint-2xl: 96rem;
+	--breakpoint-3xl: 120rem;
+
+  --color-primary: #A0463C;
+
+  --color-accent: #9E3B2E;
+
+  --color-white-100: #FFFFFF;
+  --color-white-500: #F7F2E8;
+
+	--color-beige-400: #F4EDDF;
+	--color-beige-500: #EFE8D8;
+  --color-beige-550: #EBE3D6;
+  --color-beige-600: #E3D9C5;
+  --color-beige-700: #CCC4B2;
+
+  --color-gray-300: #ACA9A3;
+  --color-gray-400: #BFB8AB;
+	--color-gray-450: #8C8575;
+  --color-gray-500: #5E574A;
+  --color-gray-700: #4A4238;
+
+  --color-black-400: #3D3528;
+  --color-black-500: #2B2A26;
+  --color-black-600: #2B2B28;
+  --color-black-900: #000000;
+
+  --color-status-live: #33A659;
+  --color-status-error: #F81F07;
+
+	--shadow-tooltip: 0px 6px 16px 0px #0000001A;
+}
+
+@theme inline {
+	/** TYPOGRAPHY */
+  --font-outfit: var(--font-outfit);
+  --font-jetbrains-mono: var(--font-jetbrains-mono);
+  --font-inter: var(--font-inter);
+  
+	--font-size-title: 1.5rem;
+
+	--font-size-h1: 3rem;
+	--font-size-h2: 1.625rem;
+	--font-size-h3: 1.5rem;
+	--font-size-h4: 1.75rem;
+	--font-size-h5: 1rem;
+
+	--font-size-body: 1rem;
+	--font-size-body-control: 0.625rem;
+
+	--font-size-caption: 0.6875rem;
+	--font-size-caption-meta: 0.625rem;
+	--font-size-caption-link: 0.875rem;
+
+	--letter-spacing-none: 0%;
+  
+	--font-weight-extra-bold: 800;
+	--font-weight-bold: 700;
+	--font-weight-semi-bold: 600;
+	--font-weight-medium: 500;
+	--font-weight-regular: 400;
+	
+	--text-title: var(--font-size-title);
+	--text-title--font-weight: var(--font-weight-extra-bold);
+	--text-title--letter-spacing: var(--letter-spacing-none);
+
+	--text-h1: var(--font-size-h1);
+	--text-h1--font-weight: var(--font-weight-extra-bold);
+	--text-h1--letter-spacing: var(--letter-spacing-none);
+
+	--text-h2: var(--font-size-h2);
+	--text-h2--font-weight: var(--font-weight-bold);
+	--text-h2--letter-spacing: var(--letter-spacing-none);
+
+	--text-h3: var(--font-size-h3);
+	--text-h3--font-weight: var(--font-weight-bold);
+	--text-h3--letter-spacing: var(--letter-spacing-none);
+	
+  --text-h4: var(--font-size-h4);
+	--text-h4--font-weight: var(--font-weight-bold);
+	--text-h4--letter-spacing: var(--letter-spacing-none);
+
+	--text-h5: var(--font-size-h5);
+	--text-h5--font-weight: var(--font-weight-semi-bold);
+	--text-h5--letter-spacing: var(--letter-spacing-none);
+
+	--text-body: var(--font-size-body);
+	--text-body--font-weight: var(--font-weight-regular);
+	--text-body--letter-spacing: var(--letter-spacing-none);
+
+	--text-body-control: var(--font-size-body-control);
+	--text-body-control--font-weight: var(--font-weight-medium);
+	--text-body-control--letter-spacing: var(--letter-spacing-none);
+
+	--text-caption: var(--font-size-caption);
+	--text-caption--font-weight: var(--font-weight-medium);
+	--text-caption--letter-spacing: var(--letter-spacing-none);
+
+	--text-caption-meta: var(--font-size-caption-meta);
+	--text-caption-meta--font-weight: var(--font-weight-regular);
+	--text-caption-meta--letter-spacing: var(--letter-spacing-none);
+
+	--text-caption-link: var(--font-size-caption-link);
+	--text-caption-link--font-weight: var(--font-weight-regular);
+	--text-caption-link--letter-spacing: var(--letter-spacing-none);
+}
+
+@layer base {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-outfit);
+	}
+
+  body {
+		font-family: var(--font-inter);
+  }
+
+	.contrast-text {
+  --a: calc(var(--alpha, 100%) / 1%);
+  --t: calc(var(--threshold, 50%) / 1%);
+  --switch: clamp(-1, calc((var(--t) - var(--a) - 0.001) * 100000), 1);
+
+  color: color-mix(
+    in srgb,
+    var(--color-black-400, #3D3528) calc(50% + var(--switch) * 50%),
+    var(--color-white-100, #FFF)
+  );
+}
+}
