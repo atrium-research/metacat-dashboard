@@ -1,41 +1,44 @@
 "use client";
 
 import { countFacetComparisonGaps } from "@/components/Chart/BarChart/buildFacetComparisonBarData";
-import { useCatalogueFacets } from "@/hooks/useCatalogues";
+import { useCatalogueVersionsLast } from "@/hooks/useCatalogues";
 import { facetQueryOptions } from "@/hooks/useFacets";
 import { components } from "@/types/api";
 import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 type FacetExposureList = components["schemas"]["FacetExposure"][] | undefined;
-const getFacetNamesFromFacetArrays = (facetArrays: FacetExposureList[]): string[] => {
-    const labels = new Set<string>();
-    
-    for (const facets of facetArrays) {
-        if (!facets) continue;
+const getFacetNamesFromFacetArrays = (
+  facetArrays: FacetExposureList[],
+): string[] => {
+  const labels = new Set<string>();
 
-        for (const facet of facets) {
-            if (!facet?.facet) continue;
+  for (const facets of facetArrays) {
+    if (!facets) continue;
 
-            labels.add(facet.facet);
-        }
+    for (const facet of facets) {
+      if (!facet?.facet) continue;
+
+      labels.add(facet.facet);
     }
+  }
 
-    return Array.from(labels);
+  return Array.from(labels);
 };
 
 export const useFacetNames = (): string[] => {
-  const { data: ariadneFacets } = useCatalogueFacets("ariadne");
-  const { data: clarinVloFacets } = useCatalogueFacets("clarin-vlo");
-  const { data: gotripleFacets } = useCatalogueFacets("gotriple");
-  const { data: sshompFacets } = useCatalogueFacets("sshomp");
+  const { data: ariadneFacets } = useCatalogueVersionsLast("ariadne");
+  const { data: clarinVloFacets } = useCatalogueVersionsLast("clarin-vlo");
+  const { data: gotripleFacets } = useCatalogueVersionsLast("gotriple");
+  const { data: sshompFacets } = useCatalogueVersionsLast("sshomp");
 
-  return useMemo(() =>
+  return useMemo(
+    () =>
       getFacetNamesFromFacetArrays([
-        ariadneFacets,
-        clarinVloFacets,
-        gotripleFacets,
-        sshompFacets,
+        ariadneFacets.facet_exposures,
+        clarinVloFacets.facet_exposures,
+        gotripleFacets.facet_exposures,
+        sshompFacets.facet_exposures,
       ]),
     [ariadneFacets, clarinVloFacets, gotripleFacets, sshompFacets],
   );
@@ -46,7 +49,9 @@ export const useFacetGapCounts = (
   minCount: number,
 ): Record<string, number> => {
   const comparisons = useQueries({
-    queries: facetNames.map((name) => facetQueryOptions.compare(name)),
+    queries: facetNames.map((name) =>
+      facetQueryOptions.values({ facets: name }),
+    ),
     combine: (results) => results.map((result) => result.data),
   });
 
@@ -54,10 +59,8 @@ export const useFacetGapCounts = (
     const gapCountByFacet: Record<string, number> = {};
 
     facetNames.forEach((name, index) => {
-      gapCountByFacet[name] = countFacetComparisonGaps(
-        comparisons[index],
-        minCount,
-      ) + 1;
+      gapCountByFacet[name] =
+        countFacetComparisonGaps(comparisons[index], minCount) + 1;
     });
 
     return gapCountByFacet;

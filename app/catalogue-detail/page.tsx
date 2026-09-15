@@ -1,34 +1,27 @@
 import CatalogueDetailTabs from "@/components/CatalogueDetailPage/CatalogueDetailTabs";
 import { catalogueQueryOptions } from "@/hooks/useCatalogues";
+import { vocabularyQueryOptions } from "@/hooks/useVocabularies";
 import { getQueryClient } from "@/services/queryClient";
 import React from "react";
 
 const page = async () => {
   const queryClient = getQueryClient();
 
-  const catalogues = await queryClient.fetchQuery(catalogueQueryOptions.list());
+  await queryClient.prefetchQuery(catalogueQueryOptions.list());
+  const catalogues = queryClient.getQueryData(
+    catalogueQueryOptions.list().queryKey,
+  );
+  await queryClient.prefetchQuery(vocabularyQueryOptions.list());
 
   if (catalogues?.length) {
     await Promise.all(
-      catalogues.map((catalogue) => {
-        return [
-          queryClient.prefetchQuery(
-            catalogueQueryOptions.facetCoverage(
-              catalogue.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-            ),
+      catalogues.map((catalogue) =>
+        queryClient.prefetchQuery(
+          catalogueQueryOptions.versionsLast(
+            catalogue.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
           ),
-          queryClient.prefetchQuery(
-            catalogueQueryOptions.facets(
-              catalogue.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-            ),
-          ),
-          queryClient.prefetchQuery(
-            catalogueQueryOptions.vocabularies(
-              catalogue.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-            ),
-          ),
-        ];
-      }),
+        ),
+      ),
     );
   }
 

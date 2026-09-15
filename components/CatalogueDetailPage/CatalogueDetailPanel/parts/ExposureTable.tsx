@@ -1,5 +1,5 @@
 import { Typography } from "@/components/ui/Typography/Typography";
-import { useCatalogueFacets } from "@/hooks/useCatalogues";
+import { useCatalogueVersionsLast } from "@/hooks/useCatalogues";
 import {
   Cell,
   Column,
@@ -14,7 +14,7 @@ interface ExposureTableProps {
 }
 
 const ExposureTable = ({ id }: ExposureTableProps) => {
-  const { data: catalogueFacets } = useCatalogueFacets(id);
+  const { data: catalogue } = useCatalogueVersionsLast(id);
   return (
     <div className="flex flex-col flex-1 rounded-lg border border-beige-600 bg-white-500 gap-4 py-5 px-6 max-lg:overflow-auto">
       <Typography
@@ -34,19 +34,14 @@ const ExposureTable = ({ id }: ExposureTableProps) => {
           <Column id="values" isRowHeader className="text-start pb-4">
             Values
           </Column>
-          <Column id="top value" isRowHeader className="text-start pb-4">
-            Top value
-          </Column>
         </TableHeader>
         <TableBody>
-          {catalogueFacets?.map((facet) => {
+          {catalogue.facet_exposures.map((facet) => {
             const {
               facet: facetName,
               status,
               total_count,
               values_count,
-              top_value,
-              top_value_count,
             } = facet;
 
             return (
@@ -65,21 +60,6 @@ const ExposureTable = ({ id }: ExposureTableProps) => {
                 </Cell>
                 <Cell className="text-[0.75rem] text-black-500 font-medium font-jetbrains-mono leading-4">
                   {values_count}
-                </Cell>
-                <Cell>
-                  {status !== "gap" ? (
-                    <>
-                      <span className="text-[0.5625rem] text-gray-500 font-jetbrains-mono leading-3">
-                        top:
-                      </span>
-                      <span className="text-[0.75rem] text-black-500 font-medium font-outfit leading-3.75 px-2">
-                        {top_value}
-                      </span>{" "}
-                      <span className="text-[0.625rem] text-gray-500 font-jetbrains-mono leading-3">
-                        {top_value_count?.toLocaleString("pl-PL")}
-                      </span>
-                    </>
-                  ) : null}
                 </Cell>
               </Row>
             );

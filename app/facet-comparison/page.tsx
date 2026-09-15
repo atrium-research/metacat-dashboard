@@ -6,35 +6,36 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Facet Comparison",
-    description: "Compare facets across catalogues",
+  title: "Facet Comparison",
+  description: "Compare facets across catalogues",
 };
 
 const page = async () => {
-    const queryClient = getQueryClient();
+  const queryClient = getQueryClient();
 
-    const catalogues = await queryClient.fetchQuery(
-        catalogueQueryOptions.list(),
+  const catalogues = await queryClient.fetchQuery(catalogueQueryOptions.list());
+
+  if (catalogues?.length) {
+    await Promise.all(
+      catalogues.map((catalogue) =>
+        queryClient.prefetchQuery(
+          catalogueQueryOptions.versionsLast(
+            catalogue.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
+          ),
+        ),
+      ),
     );
+  }
 
-    if (catalogues?.length) {
-        await Promise.all(
-            catalogues.map((catalogue) =>
-                queryClient.prefetchQuery(
-                    catalogueQueryOptions.facets(catalogue.id),
-                ),
-            ),
-        );
-    }
-
-    return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
-            <main className="flex flex-1 w-full">
-                <FacetComparisonFiltersSidebar />
-                <FacetComparison />
-            </main>
-        </HydrationBoundary>
-    );
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <main className="flex flex-1 w-full">
+        {/* <FacetComparisonFiltersSidebar />
+        <FacetComparison /> */}
+        Facet Filters and Comparision waiting for endpoints.
+      </main>
+    </HydrationBoundary>
+  );
 };
 
 export default page;

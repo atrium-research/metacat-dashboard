@@ -1,8 +1,10 @@
 import { MatrixCell } from "@/components/ui/MatrixCell/MatrixCell";
+import { catalogueQueryOptions, useCatalogueList } from "@/hooks/useCatalogues";
 import { useVocabularyList } from "@/hooks/useVocabularies";
-import { getGrouppedVocabularies } from "@/utils/vocabulary.utils";
+import { useSuspenseQueries } from "@tanstack/react-query";
+// import { getGrouppedVocabularies } from "@/utils/vocabulary.utils";
 import clsx from "clsx";
-import { Fragment, ReactNode } from "react";
+import { ReactNode } from "react";
 import {
   Cell,
   Column,
@@ -14,8 +16,28 @@ import {
 
 export function UsageTable(): ReactNode {
   const { data: vocabularies = [] } = useVocabularyList();
+  const { data: catalogues } = useCatalogueList();
 
-  const grouppedVocabularies = getGrouppedVocabularies(vocabularies);
+  const catalogueVersions = useSuspenseQueries({
+    queries: catalogues.map((cat) =>
+      catalogueQueryOptions.versionsLast(
+        cat.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
+      ),
+    ),
+  });
+
+  const ariadne = catalogueVersions.find(
+    (catalogue) => catalogue.data.catalogue_id === "ariadne",
+  )?.data;
+  const clarinVlo = catalogueVersions.find(
+    (catalogue) => catalogue.data.catalogue_id === "clarin-vlo",
+  )?.data;
+  const gotriple = catalogueVersions.find(
+    (catalogue) => catalogue.data.catalogue_id === "gotriple",
+  )?.data;
+  const sshomp = catalogueVersions.find(
+    (catalogue) => catalogue.data.catalogue_id === "sshomp",
+  )?.data;
 
   return (
     <Table className="max-lg:min-w-200 w-full">
@@ -35,9 +57,6 @@ export function UsageTable(): ReactNode {
         <Column id="Authority" className="text-start py-3 px-1.5 uppercase">
           Authority
         </Column>
-        <Column id="Concepts" className="text-end py-3 px-1.5 uppercase">
-          Concepts
-        </Column>
         <Column id="ARIADNE" className="py-3 px-1.5 uppercase">
           ARIADNE
         </Column>
@@ -52,76 +71,53 @@ export function UsageTable(): ReactNode {
         </Column>
       </TableHeader>
       <TableBody className="[&>tr>td]:py-3 [&>tr>td]:px-1.5">
-        {Object.keys(grouppedVocabularies).map((facet) => {
-          return (
-            <Fragment key={facet}>
-              <Row>
-                <Cell
-                  colSpan={7}
-                  className={clsx(
-                    "bg-beige-500 border-y border-beige-600 py-2 px-6! uppercase",
-                    "text-caption font-bold font-jetbrains-mono text-gray-700",
-                  )}
-                >
-                  {facet}
-                </Cell>
-              </Row>
-              {grouppedVocabularies[facet].map((vocabularies) => {
-                const usedForAriadne =
-                  vocabularies.used_by_catalogues.includes("ariadne");
-                const usedForClarin =
-                  vocabularies.used_by_catalogues.includes("clarin-vlo");
-                const usedForGoTriple =
-                  vocabularies.used_by_catalogues.includes("gotriple");
-                const usedForSshomp =
-                  vocabularies.used_by_catalogues.includes("sshomp");
+        {vocabularies.map((vocabulary) => {
+          const usedForAriadne = !ariadne?.vocabularies.includes(vocabulary.id);
+          const usedForClarin = !clarinVlo?.vocabularies.includes(
+            vocabulary.id,
+          );
+          const usedForGoTriple = !gotriple?.vocabularies.includes(
+            vocabulary.id,
+          );
+          const usedForSshomp = !sshomp?.vocabularies.includes(vocabulary.id);
 
-                return (
-                  <Row
-                    key={vocabularies.id}
-                    className="border-y border-beige-600"
-                  >
-                    <Cell className="text-h5 text-[0.875rem] text-black-500 font-outfit min-w-25 w-147.5 px-6!">
-                      {vocabularies.name}
-                    </Cell>
-                    <Cell className="text-body text-[0.8125rem] font-outfit min-w-25 w-87">
-                      {vocabularies.authority}
-                    </Cell>
-                    <Cell className="text-caption-link text-[0.8125rem] min-w-25 w-33.5 text-end">
-                      {vocabularies.concepts_count.toLocaleString("pl-PL")}
-                    </Cell>
-                    <Cell className="w-15 md:w-18 lg:w-20">
-                      <MatrixCell
-                        variant="coverage"
-                        source="ariadne"
-                        hasValue={usedForAriadne}
-                      />
-                    </Cell>
-                    <Cell className="w-15 md:w-18 lg:w-20">
-                      <MatrixCell
-                        variant="coverage"
-                        source="clarin-vlo"
-                        hasValue={usedForClarin}
-                      />
-                    </Cell>
-                    <Cell className="w-15 md:w-18 lg:w-20">
-                      <MatrixCell
-                        variant="coverage"
-                        source="gotriple"
-                        hasValue={usedForGoTriple}
-                      />
-                    </Cell>
-                    <Cell className="w-15 md:w-18 lg:w-20 pr-6!">
-                      <MatrixCell
-                        variant="coverage"
-                        source="sshomp"
-                        hasValue={usedForSshomp}
-                      />
-                    </Cell>
-                  </Row>
-                );
-              })}
-            </Fragment>
+          return (
+            <Row key={vocabulary.id} className="border-y border-beige-600">
+              <Cell className="text-h5 text-[0.875rem] text-black-500 font-outfit min-w-25 w-147.5 px-6!">
+                {vocabulary.name}
+              </Cell>
+              <Cell className="text-body text-[0.8125rem] font-outfit min-w-25 w-87">
+                {vocabulary.authority}
+              </Cell>
+              <Cell className="w-15 md:w-18 lg:w-20">
+                <MatrixCell
+                  variant="coverage"
+                  source="ariadne"
+                  hasValue={usedForAriadne}
+                />
+              </Cell>
+              <Cell className="w-15 md:w-18 lg:w-20">
+                <MatrixCell
+                  variant="coverage"
+                  source="clarin-vlo"
+                  hasValue={usedForClarin}
+                />
+              </Cell>
+              <Cell className="w-15 md:w-18 lg:w-20">
+                <MatrixCell
+                  variant="coverage"
+                  source="gotriple"
+                  hasValue={usedForGoTriple}
+                />
+              </Cell>
+              <Cell className="w-15 md:w-18 lg:w-20 pr-6!">
+                <MatrixCell
+                  variant="coverage"
+                  source="sshomp"
+                  hasValue={usedForSshomp}
+                />
+              </Cell>
+            </Row>
           );
         })}
       </TableBody>

@@ -9,10 +9,12 @@ import clsx from "clsx";
 import { Link } from "react-aria-components";
 
 interface PanelHeaderProps {
-  catalogue: components["schemas"]["Catalogue"];
+  catalogue: components["schemas"]["Catalogue"] &
+    components["schemas"]["CatalogueVersion"];
+  totalVocabularyCount: number;
 }
 
-const PanelHeader = ({ catalogue }: PanelHeaderProps) => {
+const PanelHeader = ({ catalogue, totalVocabularyCount }: PanelHeaderProps) => {
   const {
     id,
     harvest_status,
@@ -20,9 +22,8 @@ const PanelHeader = ({ catalogue }: PanelHeaderProps) => {
     url,
     domain,
     total_resources,
-    vocabularies_count,
-    vocabularies_mapped,
-    last_harvest_at,
+    vocabularies,
+    harvest_at,
     licence,
   } = catalogue;
 
@@ -66,8 +67,8 @@ const PanelHeader = ({ catalogue }: PanelHeaderProps) => {
         />
         <PanelHeaderDetails
           label="VOCABULARIES"
-          value={`${vocabularies_mapped} mapped`}
-          formatedValue={vocabularies_count}
+          value={`${vocabularies} mapped`}
+          formatedValue={totalVocabularyCount}
         />
         <PanelHeaderDetails
           label="LANGUAGES"
@@ -77,13 +78,13 @@ const PanelHeader = ({ catalogue }: PanelHeaderProps) => {
         <PanelHeaderDetails label="LICENSE" formatedValue={licence} />
         <PanelHeaderDetails
           label="LAST UPDATE"
-          value={formatDateToFullString(new Date(last_harvest_at), false)}
-          formatedValue={formatRelativeDate(new Date(last_harvest_at))}
+          value={formatDateToFullString(new Date(harvest_at), false)}
+          formatedValue={formatRelativeDate(new Date(harvest_at))}
         />
         <PanelHeaderDetails
           label="STATUS"
           value={
-            harvest_status === "live"
+            harvest_status === "success"
               ? "OAI-PMH responding"
               : "OAI-PMH not responding"
           }

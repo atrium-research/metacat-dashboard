@@ -119,7 +119,7 @@ const FacetComparisonBarSection = ({
     (state) => state.visualization,
   );
 
-  const { data: facetValues } = useFacetValues(pivotFacet ?? "");
+  const { data: facetValues } = useFacetValues({ facets: pivotFacet ?? "" });
 
   const authorityByValue = useMemo(
     () => buildFacetAuthorityMap(facetValues),

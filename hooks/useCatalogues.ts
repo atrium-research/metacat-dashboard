@@ -1,26 +1,37 @@
 import apiInstance, { safeFetch } from "@/services/axios";
-import { components } from "@/types/api";
+import { components, operations } from "@/types/api";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 export const catalogueKeys = {
   all: ["catalogues"] as const,
   list: () => [...catalogueKeys.all, "list"] as const,
   detail: (id: string) => [...catalogueKeys.all, "detail", id] as const,
-  facets: (id: string) => [...catalogueKeys.all, "facets", id] as const,
-  vocabularies: (id: string) =>
-    [...catalogueKeys.all, "vocabularies", id] as const,
-  facetCoverage: (id: string) =>
-    [...catalogueKeys.all, "facet-coverage", id] as const,
-  provenance: (id: string) => [...catalogueKeys.all, "provenance", id] as const,
+  versions: (id: string) => [...catalogueKeys.all, "versions", id] as const,
+  versionsLast: (id: string) =>
+    [...catalogueKeys.all, "versionsLast", id] as const,
+  versionsById: (id: string, versionId: string) =>
+    [...catalogueKeys.all, "versionsById", id, versionId] as const,
+  versionsLastFacetValues: (
+    id: string,
+    query?: operations["catalogue_version_by_id_v1_catalogues__catalogue_id__versions__version_id__get"]["parameters"]["query"],
+  ) =>
+    [
+      ...catalogueKeys.all,
+      "versionsLastFacetValues",
+      id,
+      ...(query ? Object.values(query) : []),
+    ] as const,
 };
 
 export const catalogueEndpoints = {
   list: () => "/v1/catalogues",
   detail: (id: string) => `/v1/catalogues/${id}`,
-  facets: (id: string) => `/v1/catalogues/${id}/facets`,
-  vocabularies: (id: string) => `/v1/catalogues/${id}/vocabularies`,
-  facetCoverage: (id: string) => `/v1/catalogues/${id}/facet-coverage`,
-  provenance: (id: string) => `/v1/catalogues/${id}/provenance`,
+  versions: (id: string) => `/v1/catalogues/${id}/versions`,
+  versionsLast: (id: string) => `/v1/catalogues/${id}/versions/last`,
+  versionsById: (id: string, versionId: string) =>
+    `/v1/catalogues/${id}/versions/${versionId}`,
+  versionsLastFacetValues: (id: string) =>
+    `/v1/catalogues/${id}/versions/last/facet_values`,
 };
 export const catalogueQueryOptions = {
   list: () =>
@@ -42,54 +53,56 @@ export const catalogueQueryOptions = {
       retry: false,
     }),
 
-  facets: (id: string) =>
+  versions: (id: string) =>
     queryOptions({
-      queryKey: catalogueKeys.facets(id),
-      queryFn: (): Promise<components["schemas"]["FacetExposure"][]> =>
-        safeFetch(() => apiInstance.get(catalogueEndpoints.facets(id)), []),
+      queryKey: catalogueKeys.versions(id),
+      queryFn: (): Promise<components["schemas"]["CatalogueVersion"][]> =>
+        safeFetch(() => apiInstance.get(catalogueEndpoints.versions(id)), []),
       enabled: Boolean(id),
       networkMode: "always",
       retry: false,
     }),
 
-  vocabularies: (id: string) =>
+  versionsLast: (id: string) =>
     queryOptions({
-      queryKey: catalogueKeys.vocabularies(id),
-      queryFn: (): Promise<components["schemas"]["Vocabulary"][]> =>
+      queryKey: catalogueKeys.versionsLast(id),
+      queryFn: (): Promise<components["schemas"]["CatalogueVersion"]> =>
         safeFetch(
-          () => apiInstance.get(catalogueEndpoints.vocabularies(id)),
-          [],
+          () => apiInstance.get(catalogueEndpoints.versionsLast(id)),
+          {} as components["schemas"]["CatalogueVersion"],
         ),
       enabled: Boolean(id),
       networkMode: "always",
       retry: false,
     }),
 
-  facetCoverage: (id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp") =>
+  versionsById: (id: string, versionId: string) =>
     queryOptions({
-      queryKey: catalogueKeys.facetCoverage(id),
-      queryFn: async (): Promise<{
-        catalogueId: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp";
-        coverage: {
-          [key: string]: components["schemas"]["FacetExposureStatus"];
-        };
-      }> => {
-        const coverage = await safeFetch(
-          () => apiInstance.get(catalogueEndpoints.facetCoverage(id)),
-          {},
-        );
-        return { catalogueId: id, coverage };
-      },
+      queryKey: catalogueKeys.versionsById(id, versionId),
+      queryFn: (): Promise<components["schemas"]["CatalogueVersion"]> =>
+        safeFetch(
+          () => apiInstance.get(catalogueEndpoints.versionsById(id, versionId)),
+          {} as components["schemas"]["CatalogueVersion"],
+        ),
       enabled: Boolean(id),
       networkMode: "always",
       retry: false,
     }),
 
-  provenance: (id: string) =>
+  versionsLastFacetValues: (
+    id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
+    query?: operations["catalogue_version_by_id_v1_catalogues__catalogue_id__versions__version_id__get"]["parameters"]["query"],
+  ) =>
     queryOptions({
-      queryKey: catalogueKeys.provenance(id),
-      queryFn: (): Promise<{ [key: string]: unknown }> =>
-        safeFetch(() => apiInstance.get(catalogueEndpoints.provenance(id)), {}),
+      queryKey: catalogueKeys.versionsLastFacetValues(id, query),
+      queryFn: async (): Promise<components["schemas"]["Page_FacetValue_"]> =>
+        safeFetch(
+          () =>
+            apiInstance.get(catalogueEndpoints.versionsLastFacetValues(id), {
+              params: query,
+            }),
+          {} as components["schemas"]["Page_FacetValue_"],
+        ),
       enabled: Boolean(id),
       networkMode: "always",
       retry: false,
@@ -105,26 +118,30 @@ export const useCatalogue = (
 ) => {
   return useSuspenseQuery(catalogueQueryOptions.detail(id));
 };
-export const useCatalogueFacets = (
+export const useCatalogueVersions = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
 ) => {
-  return useSuspenseQuery(catalogueQueryOptions.facets(id));
+  return useSuspenseQuery(catalogueQueryOptions.versions(id));
 };
 
-export const useCatalogueVocabularies = (
+export const useCatalogueVersionsLast = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
 ) => {
-  return useSuspenseQuery(catalogueQueryOptions.vocabularies(id));
+  return useSuspenseQuery(catalogueQueryOptions.versionsLast(id));
 };
 
-export const useCatalogueFacetCoverage = (
+export const useCatalogueVersionsById = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
+  versionId: string,
 ) => {
-  return useSuspenseQuery(catalogueQueryOptions.facetCoverage(id));
+  return useSuspenseQuery(catalogueQueryOptions.versionsById(id, versionId));
 };
 
-export const useCatalogueProvenance = (
+export const useCatalogueVersionsLastFacetValues = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
+  query?: operations["catalogue_version_by_id_v1_catalogues__catalogue_id__versions__version_id__get"]["parameters"]["query"],
 ) => {
-  return useSuspenseQuery(catalogueQueryOptions.provenance(id));
+  return useSuspenseQuery(
+    catalogueQueryOptions.versionsLastFacetValues(id, query),
+  );
 };
