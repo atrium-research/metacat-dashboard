@@ -5,11 +5,17 @@ import SidebarToggle from "@/components/Layout/Sidebar/SidebarToggle";
 import ExportMenu from "@/components/Layout/Navbar/ExportMenu";
 import SearchInput from "@/components/Layout/Navbar/SearchInput";
 import { useCatalogueList } from "@/hooks/useCatalogues";
+import { useBackupLastUpdate } from "@/hooks/useBackup";
 import { getThemeColor } from "@/utils/catalogue.utils";
+import { formatDateToFullString } from "@/utils/date.utils";
 
 const Navbar = () => {
     const { data: catalogues } = useCatalogueList();
-    
+    const { data: lastUpdate } = useBackupLastUpdate();
+    const snapshotLabel = lastUpdate?.last_update
+        ? formatDateToFullString(new Date(lastUpdate.last_update))
+        : "N/A";
+
     return (
         <nav
             aria-label="Top navigation"
@@ -23,12 +29,23 @@ const Navbar = () => {
                 <SearchInput />
 
                 <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-6 xl:order-3 xl:ml-0">
-                    <Typography
-                        variant="body-control"
-                        className="hidden text-gray-500 md:block"
-                    >
-                        SNAPSHOT 02 MAY 2026
-                    </Typography>
+                    {snapshotLabel && lastUpdate?.last_update ? (
+                        <time
+                            dateTime={lastUpdate.last_update}
+                            className="hidden text-gray-500 md:block uppercase text-body-control font-jetbrains-mono"
+                            aria-label={`Snapshot from ${snapshotLabel}`}
+                        >
+                            SNAPSHOT {snapshotLabel}
+                        </time>
+                    ) : (
+                        <Typography
+                            variant="body-control"
+                            className="hidden text-gray-500 md:block uppercase"
+                            aria-label="Snapshot date unavailable"
+                        >
+                            SNAPSHOT
+                        </Typography>
+                    )}
 
                     <ExportMenu />
                 </div>

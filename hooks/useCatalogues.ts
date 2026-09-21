@@ -1,26 +1,39 @@
 import apiInstance, { safeFetch } from "@/services/axios";
 import { components } from "@/types/api";
+import type {
+  CatalogueVersion,
+  FacetValuesQuery,
+  PageFacetValues,
+} from "@/types/catalogue-version";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 export const catalogueKeys = {
   all: ["catalogues"] as const,
   list: () => [...catalogueKeys.all, "list"] as const,
   detail: (id: string) => [...catalogueKeys.all, "detail", id] as const,
-  facets: (id: string) => [...catalogueKeys.all, "facets", id] as const,
-  vocabularies: (id: string) =>
-    [...catalogueKeys.all, "vocabularies", id] as const,
-  facetCoverage: (id: string) =>
-    [...catalogueKeys.all, "facet-coverage", id] as const,
-  provenance: (id: string) => [...catalogueKeys.all, "provenance", id] as const,
+  versions: (id: string) => [...catalogueKeys.all, "versions", id] as const,
+  versionsLast: (id: string) =>
+    [...catalogueKeys.all, "versionsLast", id] as const,
+  versionsById: (id: string, versionId: string) =>
+    [...catalogueKeys.all, "versionsById", id, versionId] as const,
+  versionsLastFacetValues: (id: string, query?: FacetValuesQuery) =>
+    [
+      ...catalogueKeys.all,
+      "versionsLastFacetValues",
+      id,
+      query ?? {},
+    ] as const,
 };
 
 export const catalogueEndpoints = {
   list: () => "/v1/catalogues",
   detail: (id: string) => `/v1/catalogues/${id}`,
-  facets: (id: string) => `/v1/catalogues/${id}/facets`,
-  vocabularies: (id: string) => `/v1/catalogues/${id}/vocabularies`,
-  facetCoverage: (id: string) => `/v1/catalogues/${id}/facet-coverage`,
-  provenance: (id: string) => `/v1/catalogues/${id}/provenance`,
+  versions: (id: string) => `/v1/catalogues/${id}/versions`,
+  versionsLast: (id: string) => `/v1/catalogues/${id}/versions/last`,
+  versionsById: (id: string, versionId: string) =>
+    `/v1/catalogues/${id}/versions/${versionId}`,
+  versionsLastFacetValues: (id: string) =>
+    `/v1/catalogues/${id}/versions/last/facet_values`,
 };
 export const catalogueQueryOptions = {
   list: () =>
@@ -42,54 +55,57 @@ export const catalogueQueryOptions = {
       retry: false,
     }),
 
-  facets: (id: string) =>
+  versions: (id: string) =>
     queryOptions({
-      queryKey: catalogueKeys.facets(id),
-      queryFn: (): Promise<components["schemas"]["FacetExposure"][]> =>
-        safeFetch(() => apiInstance.get(catalogueEndpoints.facets(id)), []),
+      queryKey: catalogueKeys.versions(id),
+      queryFn: (): Promise<CatalogueVersion[]> =>
+        safeFetch(() => apiInstance.get(catalogueEndpoints.versions(id)), []),
       enabled: Boolean(id),
       networkMode: "always",
       retry: false,
     }),
 
-  vocabularies: (id: string) =>
+  versionsLast: (id: string) =>
     queryOptions({
-      queryKey: catalogueKeys.vocabularies(id),
-      queryFn: (): Promise<components["schemas"]["Vocabulary"][]> =>
-        safeFetch(
-          () => apiInstance.get(catalogueEndpoints.vocabularies(id)),
-          [],
-        ),
-      enabled: Boolean(id),
-      networkMode: "always",
-      retry: false,
-    }),
-
-  facetCoverage: (id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp") =>
-    queryOptions({
-      queryKey: catalogueKeys.facetCoverage(id),
-      queryFn: async (): Promise<{
-        catalogueId: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp";
-        coverage: {
-          [key: string]: components["schemas"]["FacetExposureStatus"];
-        };
-      }> => {
-        const coverage = await safeFetch(
-          () => apiInstance.get(catalogueEndpoints.facetCoverage(id)),
-          {},
+      queryKey: catalogueKeys.versionsLast(id),
+      queryFn: async (): Promise<CatalogueVersion> => {
+        const { data } = await apiInstance.get<CatalogueVersion>(
+          catalogueEndpoints.versionsLast(id),
         );
-        return { catalogueId: id, coverage };
+        return data;
       },
       enabled: Boolean(id),
       networkMode: "always",
       retry: false,
     }),
 
-  provenance: (id: string) =>
+  versionsById: (id: string, versionId: string) =>
     queryOptions({
-      queryKey: catalogueKeys.provenance(id),
-      queryFn: (): Promise<{ [key: string]: unknown }> =>
-        safeFetch(() => apiInstance.get(catalogueEndpoints.provenance(id)), {}),
+      queryKey: catalogueKeys.versionsById(id, versionId),
+      queryFn: (): Promise<CatalogueVersion> =>
+        safeFetch(
+          () => apiInstance.get(catalogueEndpoints.versionsById(id, versionId)),
+          {} as CatalogueVersion,
+        ),
+      enabled: Boolean(id),
+      networkMode: "always",
+      retry: false,
+    }),
+
+  versionsLastFacetValues: (
+    id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
+    query?: FacetValuesQuery,
+  ) =>
+    queryOptions({
+      queryKey: catalogueKeys.versionsLastFacetValues(id, query),
+      queryFn: async (): Promise<PageFacetValues> =>
+        safeFetch(
+          () =>
+            apiInstance.get(catalogueEndpoints.versionsLastFacetValues(id), {
+              params: query,
+            }),
+          { items: [], total: 0, page: 1, size: 0, pages: 0 },
+        ),
       enabled: Boolean(id),
       networkMode: "always",
       retry: false,
@@ -105,26 +121,30 @@ export const useCatalogue = (
 ) => {
   return useSuspenseQuery(catalogueQueryOptions.detail(id));
 };
-export const useCatalogueFacets = (
+export const useCatalogueVersions = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
 ) => {
-  return useSuspenseQuery(catalogueQueryOptions.facets(id));
+  return useSuspenseQuery(catalogueQueryOptions.versions(id));
 };
 
-export const useCatalogueVocabularies = (
+export const useCatalogueVersionsLast = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
 ) => {
-  return useSuspenseQuery(catalogueQueryOptions.vocabularies(id));
+  return useSuspenseQuery(catalogueQueryOptions.versionsLast(id));
 };
 
-export const useCatalogueFacetCoverage = (
+export const useCatalogueVersionsById = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
+  versionId: string,
 ) => {
-  return useSuspenseQuery(catalogueQueryOptions.facetCoverage(id));
+  return useSuspenseQuery(catalogueQueryOptions.versionsById(id, versionId));
 };
 
-export const useCatalogueProvenance = (
+export const useCatalogueVersionsLastFacetValues = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
+  query?: FacetValuesQuery,
 ) => {
-  return useSuspenseQuery(catalogueQueryOptions.provenance(id));
+  return useSuspenseQuery(
+    catalogueQueryOptions.versionsLastFacetValues(id, query),
+  );
 };

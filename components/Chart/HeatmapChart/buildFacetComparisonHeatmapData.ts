@@ -1,11 +1,10 @@
-import type { BarChartDatum } from "@/components/Chart/BarChart/BarChartConfig";
 import { HeatmapChartDatum } from "@/components/Chart/HeatmapChart/HeatmapChartConfig";
 import { type FacetComparisonFilters } from "@/schema/FacetComparisonFilters";
 import { SORT_MODES } from "@/schema/facetComparisonFilters.constants";
-import type { components } from "@/types/api";
-
-type FacetComparisonRow = components["schemas"]["FacetComparisonRow"];
-type FacetComparison = components["schemas"]["FacetComparison"];
+import type {
+  FacetComparison,
+  FacetComparisonRow,
+} from "@/types/catalogue-version";
 
 type RankedRow = {
   row: FacetComparisonRow;

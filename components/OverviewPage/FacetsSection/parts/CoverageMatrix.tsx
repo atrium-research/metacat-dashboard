@@ -5,7 +5,7 @@ import { Typography } from "@/components/ui/Typography/Typography";
 import { catalogueQueryOptions, useCatalogueList } from "@/hooks/useCatalogues";
 import { useFacetList } from "@/hooks/useFacets";
 import { getShortName, getThemeColor } from "@/utils/catalogue.utils";
-import { useQueries } from "@tanstack/react-query";
+import { useSuspenseQueries } from "@tanstack/react-query";
 import clsx from "clsx";
 import { ReactNode } from "react";
 import {
@@ -27,11 +27,9 @@ export function CoverageMatrix({
   const { data: catalogues = [] } = useCatalogueList();
   const { data: facets = [] } = useFacetList();
 
-  const facetCoverageResults = useQueries({
+  const catalogueVersions = useSuspenseQueries({
     queries: catalogues.map((cat) =>
-      catalogueQueryOptions.facetCoverage(
-        cat.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-      ),
+      catalogueQueryOptions.versionsLast(cat.id),
     ),
   });
 
@@ -88,13 +86,13 @@ export function CoverageMatrix({
             ))}
           </TableHeader>
           <TableBody>
-            {facetCoverageResults.map((coverageResult) => {
-              if (!coverageResult.data) return null;
-              const { catalogueId, coverage } = coverageResult.data;
-              const themeColor = getThemeColor(catalogueId);
-
+            {catalogueVersions.map((catalogueVersion) => {
+              if (!catalogueVersion.data) return null;
+              const { catalogue_id, facet_exposures } = catalogueVersion.data;
+              const themeColor = getThemeColor(catalogue_id);
+      
               return (
-                <Row key={catalogueId} id={catalogueId}>
+                <Row key={catalogue_id} id={catalogue_id}>
                   <Cell
                     className={clsx(
                       "min-w-25 max-w-40 uppercase text-h5 text-[0.875rem] max-lg:w-25",
@@ -104,21 +102,30 @@ export function CoverageMatrix({
                       <span
                         className={`size-1.5 rounded-full bg-${themeColor}`}
                       />
-                      {getShortName(catalogueId)}
+                      {getShortName(catalogue_id)}
                     </div>
                   </Cell>
-                  {facets.map((facet) => (
+                  {facets.map((facet) => {
+                    const exposure = facet_exposures.find((exposure) => exposure.facet === facet);
+
+                    return (
                     <Cell
-                      key={`${catalogueId}_${facet}`}
+                      key={`${catalogue_id}_${facet}`}
                       className="w-15 md:w-18 lg:w-20"
                     >
                       <MatrixCell
                         variant="coverage"
-                        hasValue={coverage[facet] === "exposed"}
-                        source={catalogueId}
+                        hasValue={exposure?.status === "exposed"}
+                        source={
+                          catalogue_id as
+                          | "ariadne"
+                          | "clarin-vlo"
+                          | "gotriple"
+                          | "sshomp"
+                        }
                       />
                     </Cell>
-                  ))}
+                  )})}
                 </Row>
               );
             })}

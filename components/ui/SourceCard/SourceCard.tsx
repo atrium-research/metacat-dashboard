@@ -15,29 +15,31 @@ import { ExternalLinkIcon } from "@/components/ui/Icons/ExternalLink";
 import { formatCompactNumber } from "@/utils/global.utils";
 import { formatRelativeDate } from "@/utils/date.utils";
 import { BlankLinesIcon } from "@/components/ui/Icons/BlankLines";
+import { CatalogueVersion } from "@/types/catalogue-version";
 
-type SourceCardProps = components["schemas"]["Catalogue"] & {
-  coverage: {
-    [key: string]: components["schemas"]["FacetExposureStatus"];
-  };
+type SourceCardProps = {
+  catalogue: CatalogueVersion &
+    components["schemas"]["Catalogue"];
 };
 
-export function SourceCard(props: Readonly<SourceCardProps>): ReactNode {
+export function SourceCard({
+  catalogue,
+}: Readonly<SourceCardProps>): ReactNode {
   const {
     id,
     name,
     url,
     total_resources,
-    vocabularies_count,
-    last_harvest_at,
-    coverage,
+    vocabularies,
+    harvest_at,
+    facet_exposures,
     licence,
-  } = props;
+  } = catalogue;
 
   const themeColor = getThemeColor(id);
   const headingDescription = getHeadingDescription(id);
   const urlDisplayName = getUrlDisplayName(url);
-  const coverageCount = getCoverageCount(coverage);
+  const coverageCount = getCoverageCount(facet_exposures);
 
   return (
     <div
@@ -75,7 +77,7 @@ export function SourceCard(props: Readonly<SourceCardProps>): ReactNode {
           </Typography>
         </div>
         <div className="flex flex-col gap-0.5">
-          <Typography variant="h4">{vocabularies_count}</Typography>
+          <Typography variant="h4">{vocabularies.length}</Typography>
           <Typography
             variant="caption"
             className="uppercase text-[0.5625rem] text-gray-500"
@@ -92,7 +94,7 @@ export function SourceCard(props: Readonly<SourceCardProps>): ReactNode {
           </Typography>
 
           <Typography variant="caption" className="uppercase">
-            {`${coverageCount}/${Object.values(coverage).length}`}
+            {`${coverageCount}/${facet_exposures.length}`}
           </Typography>
         </div>
         <div className="flex gap-1">
@@ -123,7 +125,7 @@ export function SourceCard(props: Readonly<SourceCardProps>): ReactNode {
           variant="caption-meta"
           className="uppercase text-[0.5625rem]"
         >
-          Updated {formatRelativeDate(new Date(last_harvest_at), true)}
+          Updated {formatRelativeDate(new Date(harvest_at), true)}
         </Typography>
       </div>
     </div>

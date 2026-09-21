@@ -1,8 +1,9 @@
 "use client";
 
 import { Typography } from "@/components/ui/Typography/Typography";
-import { useCatalogueList } from "@/hooks/useCatalogues";
+import { catalogueQueryOptions, useCatalogueList } from "@/hooks/useCatalogues";
 import { formatCompactNumber } from "@/utils/global.utils";
+import { useSuspenseQueries } from "@tanstack/react-query";
 import { ReactNode } from "react";
 
 interface HeaderSectionProps {
@@ -14,19 +15,23 @@ export function HeaderSection({
 }: HeaderSectionProps): ReactNode {
   const { data: catalogues = [] } = useCatalogueList();
 
+  const catalogueVersions = useSuspenseQueries({
+    queries: catalogues.map((cat) => catalogueQueryOptions.versionsLast(cat.id)),
+  });
+
   const totalCatalogues = catalogues.length;
-  const activeCatalogues = catalogues.filter(
-    (catalogue) => catalogue.harvest_status === "live",
+  const activeCatalogues = catalogueVersions.filter(
+    (catalogue) => catalogue.data.harvest_status === "success",
   ).length;
 
-  const totalResources = catalogues.reduce(
-    (sum, catalogue) => sum + catalogue.total_resources,
+  const totalResources = catalogueVersions.reduce(
+    (sum, catalogue) => sum + catalogue.data.total_resources,
     0,
   );
-  const vocabulariesCount = catalogues.reduce(
-    (sum, catalogue) => sum + catalogue.vocabularies_count,
-    0,
-  );
+  const vocabulariesCount = new Set(
+    catalogueVersions.flatMap((catalogue) => catalogue.data.vocabularies),
+  ).size;
+
   return (
     <div className="flex flex-col gap-8 w-full items-end justify-end xl:flex-row xl:justify-between">
       <div className="flex flex-col gap-4 flex-1 max-w-full xl:max-w-200">

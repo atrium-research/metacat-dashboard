@@ -27,10 +27,10 @@ import AxisTermTick, {
     ROW_HEIGHT_WITH_AUTHORITY,
 } from "@/components/Chart/BarChart/AxisTermTick";
 import GapMarkers from "@/components/Chart/BarChart/GapMarkers";
-import { components } from "@/types/api";
+import type { FacetComparisonRow } from "@/types/catalogue-version";
 
 type BarChartProps = {
-    data: components["schemas"]["FacetComparisonRow"][];
+    data: FacetComparisonRow[];
     groupMode?: "grouped" | "stacked";
     authorityByValue?: Record<string, string>;
     showGaps?: boolean;

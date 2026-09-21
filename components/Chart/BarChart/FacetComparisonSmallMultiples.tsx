@@ -3,12 +3,10 @@
 import BarChart from "@/components/Chart/BarChart";
 import { getCatalogueIds } from "@/components/Chart/BarChart/buildFacetComparisonBarData";
 import { Typography } from "@/components/ui/Typography/Typography";
-import { components } from "@/types/api";
+import type { FacetComparisonRow } from "@/types/catalogue-version";
 import { getShortName, getThemeColor } from "@/utils/catalogue.utils";
 import { formatCompactNumber } from "@/utils/global.utils";
 import { useMemo } from "react";
-
-type FacetComparisonRow = components["schemas"]["FacetComparisonRow"];
 
 type SmallMultiplePanel = {
     catalogue: string;

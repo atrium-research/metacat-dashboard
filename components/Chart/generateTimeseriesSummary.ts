@@ -1,6 +1,9 @@
 import { getShortName } from "@/utils/catalogue.utils";
 import { formatCompactNumber } from "@/utils/global.utils";
-import type { FacetComparisonLineSeries } from "@/components/Chart/LineChart/buildFacetComparisonLineData";
+import {
+    getTimelineDomain,
+    type FacetComparisonLineSeries,
+} from "@/components/Chart/LineChart/buildFacetComparisonLineData";
 
 const FLAT_PCT = 5;
 const STEADY_PCT = 20;
@@ -38,18 +41,7 @@ const rank = (trend: CatalogueTrend) =>
 
 export const getTimelineMonthsSpan = (
     series: FacetComparisonLineSeries[],
-): number => {
-    const points = series.find((s) => s.data.length > 1)?.data;
-    if (!points) return 0;
-
-    const from = new Date(points[0].timestamp);
-    const to = new Date(points[points.length - 1].timestamp);
-
-    return (
-        (to.getUTCFullYear() - from.getUTCFullYear()) * 12 +
-        (to.getUTCMonth() - from.getUTCMonth())
-    );
-};
+): number => getTimelineDomain(series)?.displayMonths ?? 0;
 
 const describeTrend = (
     { catalogue, first, last, pctChange }: CatalogueTrend,

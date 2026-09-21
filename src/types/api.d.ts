@@ -344,6 +344,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/export/ao-cat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export data to AO-Cat format */
+        get: operations["get_export_ao_cat_export_ao_cat_get"];
+        put?: never;
+        /** Update AO-Cat: recompute and write ttl */
+        post: operations["post_update_ao_cat_export_ao_cat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -457,6 +475,12 @@ export interface components {
             filename: string;
             /** Size */
             size: number;
+            /** Catalogue */
+            catalogue?: string | null;
+            /** Version */
+            version?: string | null;
+            /** Harvest At */
+            harvest_at?: string | null;
             /** Size Human */
             readonly size_human: string;
         };
@@ -1244,6 +1268,44 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
+            };
+        };
+    };
+    get_export_ao_cat_export_ao_cat_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    post_update_ao_cat_export_ao_cat_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

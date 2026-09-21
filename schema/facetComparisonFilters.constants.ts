@@ -17,3 +17,4 @@ export const DEFAULT_MIN_COUNT = 50;
 export const DEFAULT_MIN_COUNT_MAX = 10000;
 export const DEFAULT_SORT = SORT_MODES.BY_TOTAL;
 export const DEFAULT_VISUALIZATION = "grouped";
+export const TIMELINE_WINDOW_MONTHS = 1;

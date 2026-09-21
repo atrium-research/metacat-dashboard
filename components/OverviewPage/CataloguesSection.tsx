@@ -3,7 +3,8 @@
 import SkeltonSourceCard from "@/components/ui/SourceCard/SkeltonSourceCard";
 import { SourceCard } from "@/components/ui/SourceCard/SourceCard";
 import { catalogueQueryOptions, useCatalogueList } from "@/hooks/useCatalogues";
-import { useQueries } from "@tanstack/react-query";
+import { CatalogueVersion } from "@/types/catalogue-version";
+import { useSuspenseQueries } from "@tanstack/react-query";
 import { ReactNode } from "react";
 interface CataloguesSectionProps {
   shouldUseSkelton?: boolean;
@@ -14,11 +15,9 @@ export function CataloguesSection({
 }: CataloguesSectionProps): ReactNode {
   const { data: catalogues = [] } = useCatalogueList();
 
-  const facetCoverageResults = useQueries({
+  const catalogueVersions = useSuspenseQueries({
     queries: catalogues.map((cat) =>
-      catalogueQueryOptions.facetCoverage(
-        cat.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-      ),
+      catalogueQueryOptions.versionsLast(cat.id),
     ),
   });
 
@@ -29,15 +28,16 @@ export function CataloguesSection({
       {shouldUseSkelton
         ? skeltonArray.map((skelton) => <SkeltonSourceCard key={skelton} />)
         : catalogues.map((catalogue) => {
-            const coverage =
-              facetCoverageResults.find(
-                (result) => result.data?.catalogueId === catalogue.id,
-              )?.data?.coverage || {};
-            const sourceCardProps = {
-              ...catalogue,
-              coverage,
-            };
-            return <SourceCard key={catalogue.id} {...sourceCardProps} />;
+            const catalogueVersion =
+              catalogueVersions.find(
+                (result) => result.data?.catalogue_id === catalogue.id,
+              )?.data || ({} as CatalogueVersion);
+            return (
+              <SourceCard
+                key={catalogue.id}
+                catalogue={{ ...catalogue, ...catalogueVersion }}
+              />
+            );
           })}
     </div>
   );

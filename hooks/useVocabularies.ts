@@ -6,16 +6,6 @@ export const vocabularyKeys = {
   all: ["vocabularies"] as const,
   list: () => [...vocabularyKeys.all, "list"] as const,
   detail: (id: string) => [...vocabularyKeys.all, "detail", id] as const,
-  concepts: (
-    id: string,
-    query?: operations["vocabulary_concepts_v1_vocabularies__vocabulary_id__concepts_get"]["parameters"]["query"],
-  ) =>
-    [
-      ...vocabularyKeys.all,
-      "concepts",
-      id,
-      ...(query ? Object.values(query) : []),
-    ] as const,
 };
 
 export const vocabularyEndpoints = {
@@ -43,25 +33,6 @@ export const vocabularyQueryOptions = {
       networkMode: "always",
       retry: false,
     }),
-
-  concepts: (
-    id: string,
-    query?: operations["vocabulary_concepts_v1_vocabularies__vocabulary_id__concepts_get"]["parameters"]["query"],
-  ) =>
-    queryOptions({
-      queryKey: vocabularyKeys.concepts(id, query),
-      queryFn: (): Promise<components["schemas"]["PaginatedConcepts"] | null> =>
-        safeFetch(
-          () =>
-            apiInstance.get(vocabularyEndpoints.concepts(id), {
-              params: query,
-            }),
-          null,
-        ),
-      enabled: Boolean(id),
-      networkMode: "always",
-      retry: false,
-    }),
 };
 
 export const useVocabularyList = () => {
@@ -70,11 +41,4 @@ export const useVocabularyList = () => {
 
 export const useVocabulary = (id: string) => {
   return useSuspenseQuery(vocabularyQueryOptions.detail(id));
-};
-
-export const useVocabularyConcepts = (
-  id: string,
-  query?: operations["vocabulary_concepts_v1_vocabularies__vocabulary_id__concepts_get"]["parameters"]["query"],
-) => {
-  return useSuspenseQuery(vocabularyQueryOptions.concepts(id, query));
 };

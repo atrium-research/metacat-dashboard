@@ -3,16 +3,24 @@
 import { ActivityCell } from "@/components/OverviewPage/FacetsSection/parts/ActivityCell";
 import { CoverageMatrix } from "@/components/OverviewPage/FacetsSection/parts/CoverageMatrix";
 import { Typography } from "@/components/ui/Typography/Typography";
-import { useCatalogueList } from "@/hooks/useCatalogues";
+import { catalogueQueryOptions, useCatalogueList } from "@/hooks/useCatalogues";
+import { CatalogueVersion } from "@/types/catalogue-version";
+import { useSuspenseQueries } from "@tanstack/react-query";
 import { ReactNode } from "react";
-interface FactetSectionProps {
+interface FacetsSectionProps {
   shouldUseSkelton?: boolean;
 }
 
-export function FactetSection({
+export function FacetsSection({
   shouldUseSkelton,
-}: FactetSectionProps): ReactNode {
+}: FacetsSectionProps): ReactNode {
   const { data: catalogues = [] } = useCatalogueList();
+
+  const catalogueVersions = useSuspenseQueries({
+    queries: catalogues.map((cat) =>
+      catalogueQueryOptions.versionsLast(cat.id),
+    ),
+  });
 
   const skeltonArray = Array.from({ length: 4 }, (_, i) => i);
 
@@ -36,14 +44,25 @@ export function FactetSection({
                 />
               ))
             : catalogues.map((catalogue) => {
-                const { id, name, last_harvest_at } = catalogue;
+                const currentCatalogueVersion =
+                  catalogueVersions.find(
+                    (catalogueVersion) =>
+                      catalogueVersion.data.catalogue_id === catalogue.id,
+                  )?.data ?? ({} as CatalogueVersion);
+
+                if (!currentCatalogueVersion) return null;
+
+                const { id, name, harvest_at } = {
+                  ...currentCatalogueVersion,
+                  ...catalogue,
+                };
 
                 return (
                   <ActivityCell
                     key={id}
                     id={id}
                     name={name}
-                    lastHarvestDate={new Date(last_harvest_at)}
+                    lastHarvestDate={new Date(harvest_at)}
                   />
                 );
               })}

@@ -1,8 +1,6 @@
-import { components } from "@/types/api";
+import type { FacetComparisonRow } from "@/types/catalogue-version";
 import { getShortName } from "@/utils/catalogue.utils";
 import { formatCompactNumber } from "@/utils/global.utils";
-
-type FacetComparisonRow = components["schemas"]["FacetComparisonRow"];
 
 const MINIMAL_PRESENCE = 10_000;
 

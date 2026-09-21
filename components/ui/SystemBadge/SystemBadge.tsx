@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 interface SystemBadgeProps {
   variant?: "gap" | "status";
-  status?: "live" | "error";
+  status?: "success" | "error";
   className?: string;
   gapCount?: number;
 }

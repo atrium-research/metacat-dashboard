@@ -17,9 +17,7 @@ export default async function Home() {
     await Promise.all(
       catalogues.map((catalogue) =>
         queryClient.prefetchQuery(
-          catalogueQueryOptions.facetCoverage(
-            catalogue.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-          ),
+          catalogueQueryOptions.versionsLast(catalogue.id),
         ),
       ),
     );

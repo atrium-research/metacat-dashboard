@@ -1,5 +1,5 @@
 import { Typography } from "@/components/ui/Typography/Typography";
-import { useCatalogueFacetCoverage } from "@/hooks/useCatalogues";
+import { useCatalogueVersionsLast } from "@/hooks/useCatalogues";
 import clsx from "clsx";
 
 interface PanelGapSectionProps {
@@ -8,13 +8,13 @@ interface PanelGapSectionProps {
 }
 
 const PanelGapSection = ({ id, facetCount }: PanelGapSectionProps) => {
-  const { data: coverage } = useCatalogueFacetCoverage(id);
+  const { data: catalogue } = useCatalogueVersionsLast(id);
 
-  const gaps = coverage
-    ? Object.entries(coverage.coverage).filter(([_, item]) => item === "gap")
+  const gaps = catalogue.facet_exposures
+    ? catalogue.facet_exposures.filter((item) => item.status === "gap")
     : [];
 
-  const gapCount = coverage ? gaps.length : -1;
+  const gapCount = catalogue.facet_exposures ? gaps.length : -1;
 
   return (
     <div className="flex flex-col rounded-lg border border-beige-600 bg-white-500 gap-3 py-5 px-6">
@@ -45,15 +45,15 @@ const PanelGapSection = ({ id, facetCount }: PanelGapSectionProps) => {
               facets not exposed
             </Typography>
             <ul className="flex flex-col" aria-label="Known gaps list">
-              {gaps.map(([gap]) => (
+              {gaps.map((gap) => (
                 <li
-                  key={gap}
+                  key={gap.facet}
                   className={clsx(
                     "before:content-['•'] before:mr-1 font-outfit",
                     "leading-3.75 text-h5 text-[0.75rem] text-gray-700 font-regular",
                   )}
                 >
-                  <span className="">{gap}</span>
+                  <span>{gap.facet}</span>
                 </li>
               ))}
             </ul>

@@ -2,7 +2,7 @@
 
 import ErrorScreen from "@/components/Layout/ErrorScreen/ErrorScreen";
 import { CataloguesSection } from "@/components/OverviewPage/CataloguesSection";
-import { FactetSection } from "@/components/OverviewPage/FacetsSection/FacetsSection";
+import { FacetsSection } from "@/components/OverviewPage/FacetsSection/FacetsSection";
 import { HeaderSection } from "@/components/OverviewPage/HeaderSection";
 import { useCatalogueList } from "@/hooks/useCatalogues";
 
@@ -20,7 +20,7 @@ const OverviewWrapper = () => {
       <main className="flex flex-col p-8 gap-10">
         <HeaderSection shouldUseSkelton={shouldUseSkelton} />
         <CataloguesSection shouldUseSkelton={shouldUseSkelton} />
-        <FactetSection shouldUseSkelton={shouldUseSkelton} />
+        <FacetsSection shouldUseSkelton={shouldUseSkelton} />
       </main>
     </div>
   );
