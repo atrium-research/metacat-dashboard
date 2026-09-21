@@ -15,9 +15,10 @@ import { ExternalLinkIcon } from "@/components/ui/Icons/ExternalLink";
 import { formatCompactNumber } from "@/utils/global.utils";
 import { formatRelativeDate } from "@/utils/date.utils";
 import { BlankLinesIcon } from "@/components/ui/Icons/BlankLines";
+import { CatalogueVersion } from "@/types/catalogue-version";
 
 type SourceCardProps = {
-  catalogue: components["schemas"]["CatalogueVersion"] &
+  catalogue: CatalogueVersion &
     components["schemas"]["Catalogue"];
 };
 

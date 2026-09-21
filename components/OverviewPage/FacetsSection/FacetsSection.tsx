@@ -4,23 +4,21 @@ import { ActivityCell } from "@/components/OverviewPage/FacetsSection/parts/Acti
 import { CoverageMatrix } from "@/components/OverviewPage/FacetsSection/parts/CoverageMatrix";
 import { Typography } from "@/components/ui/Typography/Typography";
 import { catalogueQueryOptions, useCatalogueList } from "@/hooks/useCatalogues";
-import { components } from "@/types/api";
+import { CatalogueVersion } from "@/types/catalogue-version";
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { ReactNode } from "react";
-interface FactetSectionProps {
+interface FacetsSectionProps {
   shouldUseSkelton?: boolean;
 }
 
-export function FactetSection({
+export function FacetsSection({
   shouldUseSkelton,
-}: FactetSectionProps): ReactNode {
+}: FacetsSectionProps): ReactNode {
   const { data: catalogues = [] } = useCatalogueList();
 
   const catalogueVersions = useSuspenseQueries({
     queries: catalogues.map((cat) =>
-      catalogueQueryOptions.versionsLast(
-        cat.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-      ),
+      catalogueQueryOptions.versionsLast(cat.id),
     ),
   });
 
@@ -50,7 +48,7 @@ export function FactetSection({
                   catalogueVersions.find(
                     (catalogueVersion) =>
                       catalogueVersion.data.catalogue_id === catalogue.id,
-                  )?.data ?? ({} as components["schemas"]["CatalogueVersion"]);
+                  )?.data ?? ({} as CatalogueVersion);
 
                 if (!currentCatalogueVersion) return null;
 

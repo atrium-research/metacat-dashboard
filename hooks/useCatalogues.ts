@@ -1,5 +1,10 @@
 import apiInstance, { safeFetch } from "@/services/axios";
-import { components, operations } from "@/types/api";
+import { components } from "@/types/api";
+import type {
+  CatalogueVersion,
+  FacetValuesQuery,
+  PageFacetValues,
+} from "@/types/catalogue-version";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 export const catalogueKeys = {
@@ -11,15 +16,12 @@ export const catalogueKeys = {
     [...catalogueKeys.all, "versionsLast", id] as const,
   versionsById: (id: string, versionId: string) =>
     [...catalogueKeys.all, "versionsById", id, versionId] as const,
-  versionsLastFacetValues: (
-    id: string,
-    query?: operations["catalogue_version_by_id_v1_catalogues__catalogue_id__versions__version_id__get"]["parameters"]["query"],
-  ) =>
+  versionsLastFacetValues: (id: string, query?: FacetValuesQuery) =>
     [
       ...catalogueKeys.all,
       "versionsLastFacetValues",
       id,
-      ...(query ? Object.values(query) : []),
+      query ?? {},
     ] as const,
 };
 
@@ -56,7 +58,7 @@ export const catalogueQueryOptions = {
   versions: (id: string) =>
     queryOptions({
       queryKey: catalogueKeys.versions(id),
-      queryFn: (): Promise<components["schemas"]["CatalogueVersion"][]> =>
+      queryFn: (): Promise<CatalogueVersion[]> =>
         safeFetch(() => apiInstance.get(catalogueEndpoints.versions(id)), []),
       enabled: Boolean(id),
       networkMode: "always",
@@ -66,11 +68,12 @@ export const catalogueQueryOptions = {
   versionsLast: (id: string) =>
     queryOptions({
       queryKey: catalogueKeys.versionsLast(id),
-      queryFn: (): Promise<components["schemas"]["CatalogueVersion"]> =>
-        safeFetch(
-          () => apiInstance.get(catalogueEndpoints.versionsLast(id)),
-          {} as components["schemas"]["CatalogueVersion"],
-        ),
+      queryFn: async (): Promise<CatalogueVersion> => {
+        const { data } = await apiInstance.get<CatalogueVersion>(
+          catalogueEndpoints.versionsLast(id),
+        );
+        return data;
+      },
       enabled: Boolean(id),
       networkMode: "always",
       retry: false,
@@ -79,10 +82,10 @@ export const catalogueQueryOptions = {
   versionsById: (id: string, versionId: string) =>
     queryOptions({
       queryKey: catalogueKeys.versionsById(id, versionId),
-      queryFn: (): Promise<components["schemas"]["CatalogueVersion"]> =>
+      queryFn: (): Promise<CatalogueVersion> =>
         safeFetch(
           () => apiInstance.get(catalogueEndpoints.versionsById(id, versionId)),
-          {} as components["schemas"]["CatalogueVersion"],
+          {} as CatalogueVersion,
         ),
       enabled: Boolean(id),
       networkMode: "always",
@@ -91,17 +94,17 @@ export const catalogueQueryOptions = {
 
   versionsLastFacetValues: (
     id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-    query?: operations["catalogue_version_by_id_v1_catalogues__catalogue_id__versions__version_id__get"]["parameters"]["query"],
+    query?: FacetValuesQuery,
   ) =>
     queryOptions({
       queryKey: catalogueKeys.versionsLastFacetValues(id, query),
-      queryFn: async (): Promise<components["schemas"]["Page_FacetValue_"]> =>
+      queryFn: async (): Promise<PageFacetValues> =>
         safeFetch(
           () =>
             apiInstance.get(catalogueEndpoints.versionsLastFacetValues(id), {
               params: query,
             }),
-          {} as components["schemas"]["Page_FacetValue_"],
+          { items: [], total: 0, page: 1, size: 0, pages: 0 },
         ),
       enabled: Boolean(id),
       networkMode: "always",
@@ -139,7 +142,7 @@ export const useCatalogueVersionsById = (
 
 export const useCatalogueVersionsLastFacetValues = (
   id: "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-  query?: operations["catalogue_version_by_id_v1_catalogues__catalogue_id__versions__version_id__get"]["parameters"]["query"],
+  query?: FacetValuesQuery,
 ) => {
   return useSuspenseQuery(
     catalogueQueryOptions.versionsLastFacetValues(id, query),

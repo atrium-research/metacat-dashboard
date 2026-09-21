@@ -7,7 +7,14 @@ import {
 } from "@nivo/line";
 import { formatCompactNumber } from "@/utils/global.utils";
 import { getShortName, getThemeColor } from "@/utils/catalogue.utils";
-import type { FacetComparisonLineSeries } from "@/components/Chart/LineChart/buildFacetComparisonLineData";
+import type {
+    FacetComparisonLineSeries,
+    TimelineDomain,
+} from "@/components/Chart/LineChart/buildFacetComparisonLineData";
+import {
+    formatTimelineTick,
+    getTimelineMonthTicks,
+} from "@/components/Chart/LineChart/buildFacetComparisonLineData";
 import { CATALOGUE_DASH_ARRAYS } from "@/components/Chart/BarChart/BarChartConfig";
 import { chartTheme } from "@/components/Chart/BarChart/BarChartTheme";
 import { useMemo } from "react";
@@ -16,9 +23,8 @@ type LineProps = LineSvgProps<FacetComparisonLineSeries>;
 
 type FacetComparisonLineChartProps = {
     data: FacetComparisonLineSeries[];
+    xDomain: TimelineDomain;
 };
-
-const MAX_AXIS_TICKS = 12;
 
 const DashedLines = ({
     series,
@@ -65,11 +71,14 @@ const SeriesEndLabels = ({
     </g>
 );
 
-const SliceTooltip: LineProps["sliceTooltip"] = ({ slice }) => (
-    <div className="rounded border border-beige-600 bg-white-500 px-3 py-2 text-xs shadow-md">
-        <div className="mb-1 font-medium text-gray-700">
-            {slice.points[0]?.data.xFormatted}
-        </div>
+const SliceTooltip: LineProps["sliceTooltip"] = ({ slice }) => {
+    const x = slice.points[0]?.data.x;
+    const dateLabel =
+        x instanceof Date ? formatTimelineTick(x) : String(x ?? "");
+
+    return (
+    <div className="relative z-50 rounded border border-beige-600 bg-white-500 px-3 py-2 text-xs shadow-md">
+        <div className="mb-1 font-medium text-gray-700">{dateLabel}</div>
         {slice.points.map((point) => (
             <div
                 key={point.id}
@@ -83,45 +92,34 @@ const SliceTooltip: LineProps["sliceTooltip"] = ({ slice }) => (
             </div>
         ))}
     </div>
-);
+    );
+};
 
-
-const LineChart = ({ data }: FacetComparisonLineChartProps) => {
-    const tickValues = useMemo(() => {
-        const monthByTimestamp = new Map<string, number>();
-
-        for (const series of data) {
-            for (const point of series.data) {
-                if (!monthByTimestamp.has(point.x)) {
-                    monthByTimestamp.set(point.x, point.timestampMs);
-                }
-            }
-        }
-
-        const monthLabels = Array.from(monthByTimestamp.entries())
-            .sort(([, a], [, b]) => a - b)
-            .map(([label]) => label);
-
-        if (monthLabels.length <= MAX_AXIS_TICKS) return monthLabels;
-
-        return Array.from({ length: MAX_AXIS_TICKS }, (_, index) =>
-            monthLabels[
-                Math.round(
-                    (index * (monthLabels.length - 1)) /
-                        (MAX_AXIS_TICKS - 1),
-                )
-            ],
-        );
-    }, [data]);
+const LineChart = ({ data, xDomain }: FacetComparisonLineChartProps) => {
+    const tickValues = useMemo(
+        () => getTimelineMonthTicks(xDomain),
+        [xDomain],
+    );
 
     return (
         <ResponsiveLine
             data={data}
-            margin={{ top: 16, right: 76, bottom: 40, left: 56 }}
-            xScale={{ type: "point" }}
+            margin={{ top: 28, right: 76, bottom: 40, left: 56 }}
+            xScale={{
+                type: "time",
+                format: "native",
+                precision: "day",
+                useUTC: true,
+                min: xDomain.min,
+                max: xDomain.max,
+            }}
+            xFormat="time:%Y-%m-%d"
             yScale={{ type: "linear", min: 0, max: "auto" }}
             colors={({ id }) => `var(--color-${getThemeColor(String(id))})`}
-            enablePoints={false}
+            enablePoints
+            pointSize={5}
+            pointBorderWidth={2}
+            pointBorderColor={{ from: "serieColor" }}
             enableGridX={false}
             enableGridY
             axisTop={null}
@@ -137,15 +135,17 @@ const LineChart = ({ data }: FacetComparisonLineChartProps) => {
                 tickPadding: 10,
                 tickRotation: 0,
                 tickValues,
+                format: (value) => formatTimelineTick(new Date(value)),
             }}
             theme={chartTheme}
             layers={[
                 "grid",
                 "axes",
                 DashedLines,
+                "points",
                 SeriesEndLabels,
                 "slices",
-                "mesh"
+                "mesh",
             ]}
             enableSlices="x"
             useMesh

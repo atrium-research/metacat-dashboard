@@ -1,13 +1,12 @@
 "use client";
-
 import { Slider } from "@/components/ui/Slider/Slider";
 import { SystemBadge } from "@/components/ui/SystemBadge/SystemBadge";
 import { ToggleButton } from "@/components/ui/ToggleButton/ToggleButton";
 import { Typography } from "@/components/ui/Typography/Typography";
 import {
     useFacetGapCounts,
-    useFacetNames,
 } from "@/hooks/useFacetComparison";
+import { useFacetList } from "@/hooks/useFacets";
 import {
     DEFAULT_MIN_COUNT,
     DEFAULT_MIN_COUNT_MAX,
@@ -48,9 +47,9 @@ const FacetComparisonFiltersSidebar = () => {
         })),
     );
 
-    const facetNames = useFacetNames();
+    const { data: facetNames } = useFacetList();
     const [draftMinCount, setDraftMinCount] = useState(minCount);
-    const gapCountByFacet = useFacetGapCounts(facetNames, minCount);
+    const gapCountByFacet = useFacetGapCounts(facetNames);
 
     useEffect(() => {
         if (!facetNames.length) return;
@@ -62,11 +61,11 @@ const FacetComparisonFiltersSidebar = () => {
     return (
         <div className="bg-white-500 w-58.75 border-r border-b border-beige-600">
             <div className="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto">
-                <Typography className="uppercase text-[0.625rem] px-4 pb-1.75 mt-4 border-b border-beige-600 text-[#3D3528]">
+                <Typography className="uppercase text-[0.625rem] px-4 pb-1.75 mt-4 border-b border-beige-600 text-black-400">
                     filters / refine
                 </Typography>
                 <div className="my-1.75">
-                    <Typography className="text-[0.625rem] px-4 text-[#3D3528] uppercase">
+                    <Typography className="text-[0.625rem] px-4 text-black-400 uppercase">
                         pivot facet
                     </Typography>
                     <ToggleButtonGroup
@@ -97,7 +96,7 @@ const FacetComparisonFiltersSidebar = () => {
                 <div className="pl-4 pr-2.75 flex flex-col gap-2 mt-1">
                     <div>
                         <Typography
-                            className="text-[0.625rem] text-[#3D3528] uppercase"
+                            className="text-[0.625rem] text-black-400 uppercase"
                             variant="caption"
                         >
                             visualization
@@ -124,7 +123,7 @@ const FacetComparisonFiltersSidebar = () => {
                     </div>
                     <div>
                         <Typography
-                            className="text-[0.625rem] text-[#3D3528] uppercase"
+                            className="text-[0.625rem] text-black-400 uppercase"
                             variant="caption"
                         >
                             min count
@@ -149,7 +148,7 @@ const FacetComparisonFiltersSidebar = () => {
                     </div>
                     <div>
                         <Typography
-                            className="text-[0.625rem] text-[#3D3528] uppercase"
+                            className="text-[0.625rem] text-black-400 uppercase"
                             variant="caption"
                         >
                             sort

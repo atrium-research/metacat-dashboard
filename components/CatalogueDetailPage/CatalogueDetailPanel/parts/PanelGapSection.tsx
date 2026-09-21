@@ -53,7 +53,7 @@ const PanelGapSection = ({ id, facetCount }: PanelGapSectionProps) => {
                     "leading-3.75 text-h5 text-[0.75rem] text-gray-700 font-regular",
                   )}
                 >
-                  <span className="">{gap.facet}</span>
+                  <span>{gap.facet}</span>
                 </li>
               ))}
             </ul>

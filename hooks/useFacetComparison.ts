@@ -1,68 +1,28 @@
 "use client";
 
-import { countFacetComparisonGaps } from "@/components/Chart/BarChart/buildFacetComparisonBarData";
-import { useCatalogueVersionsLast } from "@/hooks/useCatalogues";
-import { facetQueryOptions } from "@/hooks/useFacets";
-import { components } from "@/types/api";
+import { catalogueQueryOptions } from "@/hooks/useCatalogues";
+import { useCatalogueIds } from "@/hooks/useFacets";
+import { countCatalogueGapsForFacet } from "@/utils/buildFacetComparison";
 import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-type FacetExposureList = components["schemas"]["FacetExposure"][] | undefined;
-const getFacetNamesFromFacetArrays = (
-  facetArrays: FacetExposureList[],
-): string[] => {
-  const labels = new Set<string>();
-
-  for (const facets of facetArrays) {
-    if (!facets) continue;
-
-    for (const facet of facets) {
-      if (!facet?.facet) continue;
-
-      labels.add(facet.facet);
-    }
-  }
-
-  return Array.from(labels);
-};
-
-export const useFacetNames = (): string[] => {
-  const { data: ariadneFacets } = useCatalogueVersionsLast("ariadne");
-  const { data: clarinVloFacets } = useCatalogueVersionsLast("clarin-vlo");
-  const { data: gotripleFacets } = useCatalogueVersionsLast("gotriple");
-  const { data: sshompFacets } = useCatalogueVersionsLast("sshomp");
-
-  return useMemo(
-    () =>
-      getFacetNamesFromFacetArrays([
-        ariadneFacets.facet_exposures,
-        clarinVloFacets.facet_exposures,
-        gotripleFacets.facet_exposures,
-        sshompFacets.facet_exposures,
-      ]),
-    [ariadneFacets, clarinVloFacets, gotripleFacets, sshompFacets],
-  );
-};
-
 export const useFacetGapCounts = (
   facetNames: string[],
-  minCount: number,
 ): Record<string, number> => {
-  const comparisons = useQueries({
-    queries: facetNames.map((name) =>
-      facetQueryOptions.values({ facets: name }),
-    ),
-    combine: (results) => results.map((result) => result.data),
+  const catalogueIds = useCatalogueIds();
+
+  const versionsLast = useQueries({
+    queries: catalogueIds.map((id) => catalogueQueryOptions.versionsLast(id)),
   });
 
   return useMemo(() => {
+    const versions = versionsLast.map((result) => result.data);
     const gapCountByFacet: Record<string, number> = {};
 
-    facetNames.forEach((name, index) => {
-      gapCountByFacet[name] =
-        countFacetComparisonGaps(comparisons[index], minCount) + 1;
+    facetNames.forEach((name) => {
+      gapCountByFacet[name] = countCatalogueGapsForFacet(name, versions);
     });
 
     return gapCountByFacet;
-  }, [facetNames, comparisons, minCount]);
+  }, [facetNames, versionsLast]);
 };

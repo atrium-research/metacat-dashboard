@@ -21,9 +21,7 @@ const page = async () => {
     await Promise.all(
       catalogues.map((catalogue) =>
         queryClient.prefetchQuery(
-          catalogueQueryOptions.versionsLast(
-            catalogue.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-          ),
+          catalogueQueryOptions.versionsLast(catalogue.id),
         ),
       ),
     );

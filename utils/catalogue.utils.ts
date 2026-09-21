@@ -41,9 +41,6 @@ export const getUrlDisplayName = (url: string) => {
   }
 };
 
-export const getCoverageCount = (coverage: {
-  [key: string]: components["schemas"]["FacetExposureStatus"];
-}) => {
-  return Object.values(coverage).filter((status) => status === "exposed")
-    .length;
+export const getCoverageCount = (exposures: components["schemas"]["FacetExposure"][] | undefined) => {
+  return (exposures ?? []).filter((exposure) => exposure.status === "exposed").length;
 };

@@ -8,36 +8,17 @@ export const getAuthorities = (
   );
 };
 
-export const getGrouppedVocabularies = (
+export const getGroupedVocabulariesByAuthority = (
   vocabularies: components["schemas"]["Vocabulary"][],
 ) => {
-  const vocabulariesWithUsedFacets = vocabularies.filter(
-    (vocabulary) => vocabulary.used_for_facets.length > 0,
-  );
-
-  const sortedVocabulariesByFacets = vocabulariesWithUsedFacets
-    .map((vocabulary) => {
-      return {
-        ...vocabulary,
-        used_for_facets: vocabulary.used_for_facets.toSorted(),
-      };
-    })
-    .toSorted((a, b) => {
-      if (a.used_for_facets.length !== b.used_for_facets.length) {
-        return a.used_for_facets.length - b.used_for_facets.length;
-      }
-
-      return a.used_for_facets[0].localeCompare(b.used_for_facets[0]);
-    });
-
-  const grouppedVocabularies = sortedVocabulariesByFacets.reduce<
-    Record<string, components["schemas"]["Vocabulary"][]>
-  >((acc, vocabulary) => {
-    const facet = vocabulary.used_for_facets.toSorted().join(", ");
-
-    acc[facet] = [...(acc[facet] || []), vocabulary];
-    return acc;
-  }, {});
-
-  return grouppedVocabularies;
+  return vocabularies
+    .toSorted((a, b) => a.name.localeCompare(b.name))
+    .reduce<Record<string, components["schemas"]["Vocabulary"][]>>(
+      (acc, vocabulary) => {
+        const key = vocabulary.authority;
+        acc[key] = [...(acc[key] || []), vocabulary];
+        return acc;
+      },
+      {},
+    );
 };

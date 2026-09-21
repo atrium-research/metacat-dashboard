@@ -2,6 +2,7 @@ import CatalogueDetailTabs from "@/components/CatalogueDetailPage/CatalogueDetai
 import { catalogueQueryOptions } from "@/hooks/useCatalogues";
 import { vocabularyQueryOptions } from "@/hooks/useVocabularies";
 import { getQueryClient } from "@/services/queryClient";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import React from "react";
 
 const page = async () => {
@@ -17,18 +18,18 @@ const page = async () => {
     await Promise.all(
       catalogues.map((catalogue) =>
         queryClient.prefetchQuery(
-          catalogueQueryOptions.versionsLast(
-            catalogue.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-          ),
+          catalogueQueryOptions.versionsLast(catalogue.id),
         ),
       ),
     );
   }
 
   return (
-    <div className="py-6 px-8">
-      <CatalogueDetailTabs />
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="py-6 px-8">
+        <CatalogueDetailTabs />
+      </div>
+    </HydrationBoundary>
   );
 };
 

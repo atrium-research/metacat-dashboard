@@ -2,7 +2,6 @@ import { MatrixCell } from "@/components/ui/MatrixCell/MatrixCell";
 import { catalogueQueryOptions, useCatalogueList } from "@/hooks/useCatalogues";
 import { useVocabularyList } from "@/hooks/useVocabularies";
 import { useSuspenseQueries } from "@tanstack/react-query";
-// import { getGrouppedVocabularies } from "@/utils/vocabulary.utils";
 import clsx from "clsx";
 import { ReactNode } from "react";
 import {
@@ -20,9 +19,7 @@ export function UsageTable(): ReactNode {
 
   const catalogueVersions = useSuspenseQueries({
     queries: catalogues.map((cat) =>
-      catalogueQueryOptions.versionsLast(
-        cat.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-      ),
+      catalogueQueryOptions.versionsLast(cat.id),
     ),
   });
 
@@ -72,14 +69,14 @@ export function UsageTable(): ReactNode {
       </TableHeader>
       <TableBody className="[&>tr>td]:py-3 [&>tr>td]:px-1.5">
         {vocabularies.map((vocabulary) => {
-          const usedForAriadne = !ariadne?.vocabularies.includes(vocabulary.id);
-          const usedForClarin = !clarinVlo?.vocabularies.includes(
-            vocabulary.id,
-          );
-          const usedForGoTriple = !gotriple?.vocabularies.includes(
-            vocabulary.id,
-          );
-          const usedForSshomp = !sshomp?.vocabularies.includes(vocabulary.id);
+          const usedForAriadne =
+            ariadne?.vocabularies.includes(vocabulary.id) ?? false;
+          const usedForClarin =
+            clarinVlo?.vocabularies.includes(vocabulary.id) ?? false;
+          const usedForGoTriple =
+            gotriple?.vocabularies.includes(vocabulary.id) ?? false;
+          const usedForSshomp =
+            sshomp?.vocabularies.includes(vocabulary.id) ?? false;
 
           return (
             <Row key={vocabulary.id} className="border-y border-beige-600">

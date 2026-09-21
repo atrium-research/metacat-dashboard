@@ -1,10 +1,10 @@
 import type { BarChartDatum } from "@/components/Chart/BarChart/BarChartConfig";
 import { type FacetComparisonFilters } from "@/schema/FacetComparisonFilters";
 import { SORT_MODES } from "@/schema/facetComparisonFilters.constants";
-import type { components } from "@/types/api";
-
-type FacetComparisonRow = components["schemas"]["FacetComparisonRow"];
-type FacetComparison = components["schemas"]["FacetComparison"];
+import type {
+    FacetComparison,
+    FacetComparisonRow,
+} from "@/types/catalogue-version";
 
 type RankedRow = {
     row: FacetComparisonRow;
@@ -70,14 +70,14 @@ export const buildFacetComparisonView = (
     const ranked = filterByMinCount(comparison, minCount);
     if (ranked.length === 0) return EMPTY_VIEW;
 
-    const top = ranked
-        .toSorted((a, b) => b.total - a.total)
-        .map(({ row }) => row);
-
     const rows =
         sort === SORT_MODES.A_TO_Z
-            ? top.toSorted((a, b) => b.value.localeCompare(a.value))
-            : top.reverse();
+            ? ranked
+                  .toSorted((a, b) => a.row.value.localeCompare(b.row.value))
+                  .map(({ row }) => row)
+            : ranked
+                  .toSorted((a, b) => a.total - b.total)
+                  .map(({ row }) => row);
 
     return { rows, totalCount: ranked.length };
 };

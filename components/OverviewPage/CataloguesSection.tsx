@@ -3,7 +3,7 @@
 import SkeltonSourceCard from "@/components/ui/SourceCard/SkeltonSourceCard";
 import { SourceCard } from "@/components/ui/SourceCard/SourceCard";
 import { catalogueQueryOptions, useCatalogueList } from "@/hooks/useCatalogues";
-import { components } from "@/types/api";
+import { CatalogueVersion } from "@/types/catalogue-version";
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { ReactNode } from "react";
 interface CataloguesSectionProps {
@@ -17,9 +17,7 @@ export function CataloguesSection({
 
   const catalogueVersions = useSuspenseQueries({
     queries: catalogues.map((cat) =>
-      catalogueQueryOptions.versionsLast(
-        cat.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-      ),
+      catalogueQueryOptions.versionsLast(cat.id),
     ),
   });
 
@@ -33,7 +31,7 @@ export function CataloguesSection({
             const catalogueVersion =
               catalogueVersions.find(
                 (result) => result.data?.catalogue_id === catalogue.id,
-              )?.data || ({} as components["schemas"]["CatalogueVersion"]);
+              )?.data || ({} as CatalogueVersion);
             return (
               <SourceCard
                 key={catalogue.id}

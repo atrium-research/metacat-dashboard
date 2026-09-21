@@ -1,7 +1,6 @@
 "use client";
 
 import BarChart from "@/components/Chart/BarChart";
-import { buildFacetAuthorityMap } from "@/components/Chart/BarChart/buildFacetAuthorityMap";
 import { getCatalogueIds } from "@/components/Chart/BarChart/buildFacetComparisonBarData";
 import FacetComparisonLegend from "@/components/Chart/BarChart/FacetComparisonLegend";
 import FacetComparisonSmallMultiples from "@/components/Chart/BarChart/FacetComparisonSmallMultiples";
@@ -13,17 +12,18 @@ import HeatmapChartLegend from "@/components/Chart/HeatmapChart/HeatmapChartLege
 import ChartNote from "@/components/FacetComparisonPage/ChartNote";
 import ChartPanelMessage from "@/components/FacetComparisonPage/ChartPanelMessage";
 import ChartSummaryBlock from "@/components/FacetComparisonPage/ChartSummaryBlock";
-import { useFacetValues } from "@/hooks/useFacets";
 import { VisualizationModes } from "@/schema/facetComparisonFilters.constants";
 import { useFacetComparisonFiltersStore } from "@/store/FacetComparisonFilters";
-import { components } from "@/types/api";
+import type {
+  FacetComparison,
+  FacetComparisonRow,
+} from "@/types/catalogue-version";
 import { useMemo } from "react";
 
 type VisualizationItemProps = {
   visualization: VisualizationModes;
-  chartData: components["schemas"]["FacetComparisonRow"][];
+  chartData: FacetComparisonRow[];
   catalogueIds: string[];
-  authorityByValue: Record<string, string>;
   pivotFacet: string | null;
 };
 
@@ -31,12 +31,11 @@ const getVisualizationItem = ({
   visualization,
   chartData,
   catalogueIds,
-  authorityByValue,
   pivotFacet,
 }: VisualizationItemProps) => {
   switch (visualization) {
     case "grouped":
-    case "stacked":
+    case "stacked": {
       const facetSummary = generateChartSummary(chartData, pivotFacet ?? "");
       return (
         <div className="mt-1.75 rounded-sm border border-beige-600 bg-white-500">
@@ -48,7 +47,6 @@ const getVisualizationItem = ({
               data={chartData}
               groupMode={visualization}
               catalogueIds={catalogueIds}
-              authorityByValue={authorityByValue}
               showGaps
             />
           </div>
@@ -58,7 +56,8 @@ const getVisualizationItem = ({
           </div>
         </div>
       );
-    case "small mult.":
+    }
+    case "small mult.": {
       const smallMultiplesSummary = generateSmallMultiplesSummary(
         chartData,
         catalogueIds,
@@ -68,7 +67,6 @@ const getVisualizationItem = ({
           <FacetComparisonSmallMultiples
             data={chartData}
             catalogueIds={catalogueIds}
-            authorityByValue={authorityByValue}
           />
           <div className="space-y-2 mt-3">
             <ChartNote />
@@ -79,7 +77,8 @@ const getVisualizationItem = ({
           </div>
         </>
       );
-    case "heatmap":
+    }
+    case "heatmap": {
       const heatmapSummary = generateHeatmapSummary(
         chartData,
         pivotFacet ?? "",
@@ -90,7 +89,10 @@ const getVisualizationItem = ({
             className="h-165 w-full max-2xl:overflow-auto"
             role="presentation"
           >
-            <HeatmapChart data={chartData.toReversed()} />
+            <HeatmapChart
+              data={chartData.toReversed()}
+              catalogueIds={catalogueIds}
+            />
           </div>
           <HeatmapChartLegend catalogues={catalogueIds} />
           <div className="px-2">
@@ -98,6 +100,7 @@ const getVisualizationItem = ({
           </div>
         </div>
       );
+    }
     default:
       return null;
   }
@@ -105,13 +108,14 @@ const getVisualizationItem = ({
 
 type FacetComparisonBarSectionProps = {
   pivotFacet: string | null;
-  comparison: components["schemas"]["FacetComparison"] | undefined;
-  chartData: components["schemas"]["FacetComparisonRow"][];
+  comparison: FacetComparison | undefined;
+  chartData: FacetComparisonRow[];
   isLoading: boolean;
 };
 
 const FacetComparisonBarSection = ({
   pivotFacet,
+  comparison,
   chartData,
   isLoading,
 }: FacetComparisonBarSectionProps) => {
@@ -119,13 +123,10 @@ const FacetComparisonBarSection = ({
     (state) => state.visualization,
   );
 
-  const { data: facetValues } = useFacetValues({ facets: pivotFacet ?? "" });
-
-  const authorityByValue = useMemo(
-    () => buildFacetAuthorityMap(facetValues),
-    [facetValues],
+  const catalogueIds = useMemo(
+    () => comparison?.catalogues ?? getCatalogueIds(chartData),
+    [comparison, chartData],
   );
-  const catalogueIds = useMemo(() => getCatalogueIds(chartData), [chartData]);
 
   return (
     <>
@@ -138,7 +139,6 @@ const FacetComparisonBarSection = ({
           visualization,
           chartData,
           catalogueIds,
-          authorityByValue,
           pivotFacet,
         })
       )}

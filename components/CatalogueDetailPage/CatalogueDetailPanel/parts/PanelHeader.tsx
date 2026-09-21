@@ -2,6 +2,7 @@ import PanelHeaderDetails from "@/components/CatalogueDetailPage/CatalogueDetail
 import { ExternalLinkIcon } from "@/components/ui/Icons/ExternalLink";
 import { Typography } from "@/components/ui/Typography/Typography";
 import { components } from "@/types/api";
+import { CatalogueVersion } from "@/types/catalogue-version";
 import { getThemeColor } from "@/utils/catalogue.utils";
 import { formatDateToFullString, formatRelativeDate } from "@/utils/date.utils";
 import { formatCompactNumber } from "@/utils/global.utils";
@@ -9,8 +10,7 @@ import clsx from "clsx";
 import { Link } from "react-aria-components";
 
 interface PanelHeaderProps {
-  catalogue: components["schemas"]["Catalogue"] &
-    components["schemas"]["CatalogueVersion"];
+  catalogue: Omit<components["schemas"]["Catalogue"], "harvest_status"> & CatalogueVersion;
   totalVocabularyCount: number;
 }
 
@@ -25,6 +25,7 @@ const PanelHeader = ({ catalogue, totalVocabularyCount }: PanelHeaderProps) => {
     vocabularies,
     harvest_at,
     licence,
+    languages_summary
   } = catalogue;
 
   const themeColor = getThemeColor(id);
@@ -56,30 +57,30 @@ const PanelHeader = ({ catalogue, totalVocabularyCount }: PanelHeaderProps) => {
           className="font-regular text-[0.8125rem]"
           variant="h5"
         >
-          Here will be catalogue description in the future
+          {languages_summary}
         </Typography>
       </div>
       <div className="flex flex-col gap-3.5 w-120 max-w-full max-sm:gap-6">
         <PanelHeaderDetails
           label="TOTAL RESOURCES"
-          value={total_resources.toLocaleString("pl-PL")}
-          formatedValue={formatCompactNumber(total_resources)}
+          value={(total_resources ?? 0).toLocaleString("pl-PL")}
+          formattedValue={formatCompactNumber(total_resources ?? 0)}
         />
         <PanelHeaderDetails
           label="VOCABULARIES"
-          value={`${vocabularies} mapped`}
-          formatedValue={totalVocabularyCount}
+          value={`${vocabularies?.length ?? 0} mapped`}
+          formattedValue={totalVocabularyCount}
         />
         <PanelHeaderDetails
           label="LANGUAGES"
           value="EN"
-          formatedValue="No info in API yet"
+          formattedValue="No info in API yet"
         />
-        <PanelHeaderDetails label="LICENSE" formatedValue={licence} />
+        <PanelHeaderDetails label="LICENSE" formattedValue={licence} />
         <PanelHeaderDetails
           label="LAST UPDATE"
           value={formatDateToFullString(new Date(harvest_at), false)}
-          formatedValue={formatRelativeDate(new Date(harvest_at))}
+          formattedValue={formatRelativeDate(new Date(harvest_at))}
         />
         <PanelHeaderDetails
           label="STATUS"
@@ -88,7 +89,7 @@ const PanelHeader = ({ catalogue, totalVocabularyCount }: PanelHeaderProps) => {
               ? "OAI-PMH responding"
               : "OAI-PMH not responding"
           }
-          formatedValue={harvest_status}
+          formattedValue={harvest_status}
         />
       </div>
     </div>

@@ -16,11 +16,7 @@ export function HeaderSection({
   const { data: catalogues = [] } = useCatalogueList();
 
   const catalogueVersions = useSuspenseQueries({
-    queries: catalogues.map((cat) =>
-      catalogueQueryOptions.versionsLast(
-        cat.id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp",
-      ),
-    ),
+    queries: catalogues.map((cat) => catalogueQueryOptions.versionsLast(cat.id)),
   });
 
   const totalCatalogues = catalogues.length;
@@ -32,10 +28,10 @@ export function HeaderSection({
     (sum, catalogue) => sum + catalogue.data.total_resources,
     0,
   );
-  const vocabulariesCount = catalogueVersions.reduce(
-    (sum, catalogue) => sum + catalogue.data.vocabularies.length,
-    0,
-  );
+  const vocabulariesCount = new Set(
+    catalogueVersions.flatMap((catalogue) => catalogue.data.vocabularies),
+  ).size;
+
   return (
     <div className="flex flex-col gap-8 w-full items-end justify-end xl:flex-row xl:justify-between">
       <div className="flex flex-col gap-4 flex-1 max-w-full xl:max-w-200">

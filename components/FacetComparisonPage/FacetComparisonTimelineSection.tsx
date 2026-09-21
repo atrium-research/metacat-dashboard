@@ -1,11 +1,11 @@
 "use client";
 
-import {
-    generateTimeseriesSummary,
-    getTimelineMonthsSpan,
-} from "@/components/Chart/generateTimeseriesSummary";
+import { generateTimeseriesSummary } from "@/components/Chart/generateTimeseriesSummary";
 import FacetComparisonLineLegend from "@/components/Chart/LineChart/FacetComparisonLineLegend";
-import { buildFacetComparisonLineData } from "@/components/Chart/LineChart/buildFacetComparisonLineData";
+import {
+    buildFacetComparisonLineData,
+    getTimelineDomain,
+} from "@/components/Chart/LineChart/buildFacetComparisonLineData";
 import ChartPanelMessage from "@/components/FacetComparisonPage/ChartPanelMessage";
 import ChartSummaryBlock from "@/components/FacetComparisonPage/ChartSummaryBlock";
 import { Typography } from "@/components/ui/Typography/Typography";
@@ -18,10 +18,13 @@ import LineChart from "@/components/Chart/LineChart";
 const FacetComparisonTimelineSection = () => {
     const pivotFacet = useFacetComparisonFiltersStore((state) => state.pivotFacet);
 
-    const { data: timeseries, isLoading } = useFacetTimeseries(pivotFacet ?? "");
+    const { data: timeseries, isLoading } = useFacetTimeseries(
+        pivotFacet ?? "",
+    );
 
     const lineData = useMemo(() => buildFacetComparisonLineData(timeseries), [timeseries]);
-    const timelineMonthsSpan = useMemo(() => getTimelineMonthsSpan(lineData), [lineData]);
+    const timelineDomain = useMemo(() => getTimelineDomain(lineData), [lineData]);
+    const timelineMonthsSpan = timelineDomain?.displayMonths ?? 0;
     const catalogues = useMemo(() => lineData.map((series) => series.id), [lineData]);
 
     const summary = useMemo(
@@ -46,10 +49,10 @@ const FacetComparisonTimelineSection = () => {
             <div className="h-105 w-full pt-4" role="presentation">
                 {isLoading ? (
                     <ChartPanelMessage message="Loading timeline data…" />
-                ) : lineData.length === 0 ? (
+                ) : lineData.length === 0 || !timelineDomain ? (
                     <ChartPanelMessage message="No timeline data available for the selected facet." />
                 ) : (
-                    <LineChart data={lineData} />
+                    <LineChart data={lineData} xDomain={timelineDomain} />
                 )}
             </div>
 

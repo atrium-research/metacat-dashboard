@@ -4,13 +4,13 @@ import { Typography } from "@/components/ui/Typography/Typography";
 interface PanelHeaderDetailsProps {
   label: string;
   value?: string | number;
-  formatedValue?: string | number;
+  formattedValue?: string | number;
 }
 
 const PanelHeaderDetails = ({
   label,
   value,
-  formatedValue,
+  formattedValue,
 }: PanelHeaderDetailsProps) => {
   return (
     <div className="flex gap-3 sm:items-center h-fit max-sm:flex-col max-sm:gap-2">
@@ -23,7 +23,11 @@ const PanelHeaderDetails = ({
       {label.toLowerCase() === "status" ? (
         <SystemBadge
           variant="status"
-          status={formatedValue as "live" | "error" | undefined}
+          status={
+            formattedValue === "success" || formattedValue === "error"
+              ? formattedValue
+              : undefined
+          }
         />
       ) : (
         <Typography
@@ -31,7 +35,7 @@ const PanelHeaderDetails = ({
           className="text-[0.875rem] text-black-500 leading-4.5"
           variant="h5"
         >
-          {formatedValue}
+          {formattedValue}
         </Typography>
       )}
       {value && (
