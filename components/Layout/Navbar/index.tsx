@@ -8,6 +8,7 @@ import { useCatalogueList } from "@/hooks/useCatalogues";
 import { useBackupLastUpdate } from "@/hooks/useBackup";
 import { getThemeColor } from "@/utils/catalogue.utils";
 import { formatDateToFullString } from "@/utils/date.utils";
+import { Link } from "react-aria-components"
 
 const Navbar = () => {
     const { data: catalogues } = useCatalogueList();
@@ -35,7 +36,14 @@ const Navbar = () => {
                             className="hidden text-gray-500 md:block uppercase text-body-control font-jetbrains-mono"
                             aria-label={`Snapshot from ${snapshotLabel}`}
                         >
-                            SNAPSHOT {snapshotLabel}
+                            <Link
+                                href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/backup/page`}
+                                target="_blank"
+                                aria-label="Snapshot page"
+                                className="hover:underline"
+                            >
+                                SNAPSHOT {snapshotLabel}
+                            </Link>
                         </time>
                     ) : (
                         <Typography
