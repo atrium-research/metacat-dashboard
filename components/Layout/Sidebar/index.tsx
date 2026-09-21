@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Link as LinkAria} from "react-aria-components";
 import { Button } from "react-aria-components/Button";
 import { Dialog } from "react-aria-components/Dialog";
 import { Modal, ModalOverlay } from "react-aria-components/Modal";
@@ -105,6 +106,16 @@ const SidebarContent = (props: Readonly<SidebarContentProps>) => {
                     <Typography className="text-[9px]">
                         AO-Cat 1.4 · CIDOC CRM 7.1.1
                     </Typography>
+                </div>
+                <div className="mt-2">
+                    <LinkAria
+                        href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/docs`}
+                        target="_blank"
+                        aria-label="MetaCat API Documentation"
+                        className="text-caption text-gray-500 hover:underline"
+                    >
+                        MetaCat API
+                    </LinkAria>
                 </div>
             </div>
         </>
