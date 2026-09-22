@@ -86,7 +86,7 @@ const getVisualizationItem = ({
       return (
         <div className="rounded-sm border border-beige-600 bg-white-500">
           <div
-            className="h-165 w-full max-2xl:overflow-auto"
+            className="h-165 w-full max-2xl:overflow-x-auto overflow-y-auto overflow-x-hidden"
             role="presentation"
           >
             <HeatmapChart
