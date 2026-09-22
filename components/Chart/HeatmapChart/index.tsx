@@ -1,5 +1,5 @@
 import AxisTermTick, {
-  ROW_HEIGHT_SINGLE,
+  ROW_HEIGHT_WITH_AUTHORITY as ROW_HEIGHT_SINGLE,
 } from "@/components/Chart/BarChart/AxisTermTick";
 import {
   AXIS_LABEL_INSET,
@@ -19,6 +19,7 @@ type HeatmapChartProps = {
   catalogueIds?: string[];
   margin?: { top: number; right: number; bottom: number; left: number };
   ariaLabel?: string;
+  height?: number;
 };
 
 const DEFAULT_MARGIN = { top: 50, right: 100, bottom: 18, left: 150 };
@@ -31,7 +32,7 @@ const CustomCell = ({
   const value = cell.formattedValue;
   const numberValue = cell.data.y ?? 0;
 
-  const percentValue = Math.min(19, Math.floor(numberValue / 10000 * 20));
+  const percentValue = Math.min(19, Math.floor((numberValue / 10000) * 20));
 
   return (
     <foreignObject
@@ -57,6 +58,7 @@ const HeatmapChart = ({
   data,
   margin = DEFAULT_MARGIN,
   ariaLabel = "Facet comparison heatmap chart by catalogue",
+  height,
 }: HeatmapChartProps) => {
   const catalogueIds = useMemo(() => getCatalogueIds(data), [data]);
 
@@ -65,8 +67,25 @@ const HeatmapChart = ({
     [data, catalogueIds],
   );
 
+  const labelRowHeight = ROW_HEIGHT_SINGLE;
+
+  const rowHeight =
+    height === undefined
+      ? labelRowHeight
+      : Math.max(height - margin.top - margin.bottom, data.length) /
+        Math.max(data.length, 1);
+
+  const chartHeight =
+    height ?? data.length * rowHeight + margin.top + margin.bottom;
+
   return (
-    <div className="w-full max-2xl:min-w-200 h-full ml-2">
+    <div
+      className={`w-full max-2xl:min-w-200 ml-2`}
+      style={{
+        height: chartHeight,
+        minHeight: height === undefined ? "100%" : undefined,
+      }}
+    >
       <ResponsiveHeatMap
         valueFormat=" >-.2s"
         cellComponent={(props) => <CustomCell {...props} />}
@@ -74,6 +93,7 @@ const HeatmapChart = ({
         data={chartData}
         ariaLabel={ariaLabel}
         margin={margin}
+        role="img"
         axisTop={{
           tickSize: 0,
           renderTick: (tick) => (
