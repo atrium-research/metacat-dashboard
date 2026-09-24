@@ -1,4 +1,7 @@
-import { HeatmapChartDatum } from "@/components/Chart/HeatmapChart/HeatmapChartConfig";
+import {
+  HeatmapChartDatum,
+  HeatmapChartMaxCount,
+} from "@/components/Chart/HeatmapChart/HeatmapChartConfig";
 import { type FacetComparisonFilters } from "@/schema/FacetComparisonFilters";
 import { SORT_MODES } from "@/schema/facetComparisonFilters.constants";
 import type {
@@ -70,15 +73,27 @@ export const buildFacetComparisonView = (
 export const getCatalogueIds = (rows: FacetComparisonRow[]): string[] =>
   Array.from(new Set(rows.flatMap((row) => Object.keys(row.counts ?? {}))));
 
-export const toBarChartData = (
+export const toHeatmapChartData = (
   rows: FacetComparisonRow[],
   catalogueIds: string[],
-): HeatmapChartDatum[] => {
+): { chartData: HeatmapChartDatum[]; maxCount: HeatmapChartMaxCount } => {
+  const maxCount: HeatmapChartMaxCount = {
+    ariadne: 0,
+    "clarin-vlo": 0,
+    gotriple: 0,
+    sshomp: 0,
+  };
   const data = rows.map((row) => {
     const datum: HeatmapChartDatum = { id: row.value, data: [] };
 
     for (const id of catalogueIds) {
       const count = row.counts?.[id];
+      if (
+        count !== null &&
+        count > maxCount[id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp"]
+      )
+        maxCount[id as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp"] =
+          count;
       datum.data.push({
         x: id,
         y: count ?? undefined,
@@ -88,5 +103,5 @@ export const toBarChartData = (
     return datum;
   });
 
-  return data;
+  return { chartData: data, maxCount };
 };

@@ -7,8 +7,9 @@ import {
 } from "@/components/Chart/BarChart/BarChartTheme";
 import {
   getCatalogueIds,
-  toBarChartData,
+  toHeatmapChartData,
 } from "@/components/Chart/HeatmapChart/buildFacetComparisonHeatmapData";
+import { HeatmapChartMaxCount } from "@/components/Chart/HeatmapChart/HeatmapChartConfig";
 import { MatrixCell } from "@/components/ui/MatrixCell/MatrixCell";
 import type { FacetComparisonRow } from "@/types/catalogue-version";
 import { CellComponentProps, ResponsiveHeatMap } from "@nivo/heatmap";
@@ -26,13 +27,24 @@ const DEFAULT_MARGIN = { top: 50, right: 100, bottom: 18, left: 150 };
 
 const CustomCell = ({
   cell,
-}: CellComponentProps<{ x: string; y: number | undefined }>) => {
-  const colKey = cell.id.split(".")[1];
+  maxChartValue,
+}: CellComponentProps<{ x: string; y: number | undefined }> & {
+  maxChartValue: HeatmapChartMaxCount;
+}) => {
+  const colKey = cell.id.replace(`${cell.serieId}.`, "") as
+    | "ariadne"
+    | "clarin-vlo"
+    | "gotriple"
+    | "sshomp";
   const hasValue = cell.data.y !== undefined;
   const value = cell.formattedValue;
   const numberValue = cell.data.y ?? 0;
 
-  const percentValue = Math.min(19, Math.floor((numberValue / 10000) * 20));
+  const percentValue =
+    Math.max(
+      1,
+      Math.min(19, Math.floor((numberValue / maxChartValue[colKey]) * 20)),
+    ) * 5;
 
   return (
     <foreignObject
@@ -45,7 +57,7 @@ const CustomCell = ({
       <MatrixCell
         variant="heatmap"
         alpha={percentValue}
-        source={colKey as "ariadne" | "clarin-vlo" | "gotriple" | "sshomp"}
+        source={colKey}
         hasValue={hasValue}
         textValue={value ?? undefined}
         className="max-w-full! max-h-full min-h-full"
@@ -62,8 +74,8 @@ const HeatmapChart = ({
 }: HeatmapChartProps) => {
   const catalogueIds = useMemo(() => getCatalogueIds(data), [data]);
 
-  const chartData = useMemo(
-    () => toBarChartData(data, catalogueIds),
+  const { chartData, maxCount } = useMemo(
+    () => toHeatmapChartData(data, catalogueIds),
     [data, catalogueIds],
   );
 
@@ -88,7 +100,9 @@ const HeatmapChart = ({
     >
       <ResponsiveHeatMap
         valueFormat=" >-.2s"
-        cellComponent={(props) => <CustomCell {...props} />}
+        cellComponent={(props) => (
+          <CustomCell maxChartValue={maxCount} {...props} />
+        )}
         animate={false}
         data={chartData}
         ariaLabel={ariaLabel}

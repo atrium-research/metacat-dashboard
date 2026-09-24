@@ -18,7 +18,11 @@ export function MatrixCell(props: Readonly<MatrixCellProps>): ReactNode {
   return (
     <div
       className={matrixCellVariants({ className, variant, source, hasValue })}
-      style={{ "--alpha": alpha ? `${alpha}%` : "100%" } as CSSProperties}
+      style={
+        {
+          "--alpha": alpha !== undefined ? `${alpha}%` : "100%",
+        } as CSSProperties
+      }
     >
       {hasValue && variant === "coverage" && (
         <CheckIcon className="fill-inherit" />
