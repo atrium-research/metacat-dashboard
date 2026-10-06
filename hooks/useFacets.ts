@@ -49,7 +49,11 @@ export const facetKeys = {
   all: ["facets"] as const,
   list: () => [...facetKeys.all, "list"] as const,
   values: (query?: FacetValuesQueryInput) =>
-    [...facetKeys.all, "values", serializeFacetValuesQuery(query) ?? {}] as const,
+    [
+      ...facetKeys.all,
+      "values",
+      serializeFacetValuesQuery(query) ?? {},
+    ] as const,
   valuesAll: (query?: FacetValuesQueryInput) =>
     [
       ...facetKeys.all,
@@ -88,8 +92,10 @@ const fetchAllFacetValues = async (
     return firstPage.items;
   }
 
+  const cappedLength = Math.min(firstPage.pages - 1, 9);
+
   const remainingPages = await Promise.all(
-    Array.from({ length: firstPage.pages - 1 }, (_, index) =>
+    Array.from({ length: cappedLength }, (_, index) =>
       fetchFacetValuesPage({
         ...query,
         page: index + 2,
@@ -98,10 +104,7 @@ const fetchAllFacetValues = async (
     ),
   );
 
-  return [
-    ...firstPage.items,
-    ...remainingPages.flatMap((page) => page.items),
-  ];
+  return [...firstPage.items, ...remainingPages.flatMap((page) => page.items)];
 };
 
 export const facetQueryOptions = {
@@ -151,9 +154,7 @@ export const useFacetCompare = (facet: string) => {
   const catalogueIds = useCatalogueIds();
 
   const versionsLast = useQueries({
-    queries: catalogueIds.map((id) =>
-      catalogueQueryOptions.versionsLast(id),
-    ),
+    queries: catalogueIds.map((id) => catalogueQueryOptions.versionsLast(id)),
   });
 
   const hasVersionsError = versionsLast.some((result) => result.isError);
@@ -188,8 +189,7 @@ export const useFacetCompare = (facet: string) => {
   }, [facet, valuesQuery.data, catalogueIds, gapCatalogues, hasVersionsError]);
 
   const isLoading =
-    valuesQuery.isLoading ||
-    versionsLast.some((result) => result.isLoading);
+    valuesQuery.isLoading || versionsLast.some((result) => result.isLoading);
 
   return { data: comparison, isLoading, isError: hasVersionsError };
 };
