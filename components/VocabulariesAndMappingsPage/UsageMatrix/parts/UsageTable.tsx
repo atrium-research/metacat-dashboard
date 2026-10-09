@@ -83,7 +83,7 @@ export function UsageTable(): ReactNode {
               <Cell className="text-h5 text-[0.875rem] text-black-500 font-outfit min-w-25 w-147.5 px-6!">
                 {vocabulary.name}
               </Cell>
-              <Cell className="text-body text-[0.8125rem] font-outfit min-w-25 w-87">
+              <Cell className="text-body text-[0.8125rem] text-black-500 font-outfit min-w-25 w-87">
                 {vocabulary.authority}
               </Cell>
               <Cell className="w-15 md:w-18 lg:w-20">

@@ -10,7 +10,8 @@ import clsx from "clsx";
 import { Link } from "react-aria-components";
 
 interface PanelHeaderProps {
-  catalogue: Omit<components["schemas"]["Catalogue"], "harvest_status"> & CatalogueVersion;
+  catalogue: Omit<components["schemas"]["Catalogue"], "harvest_status"> &
+    CatalogueVersion;
   totalVocabularyCount: number;
 }
 
@@ -25,7 +26,7 @@ const PanelHeader = ({ catalogue, totalVocabularyCount }: PanelHeaderProps) => {
     vocabularies,
     harvest_at,
     licence,
-    languages_summary
+    languages_summary,
   } = catalogue;
 
   const themeColor = getThemeColor(id);
@@ -38,16 +39,16 @@ const PanelHeader = ({ catalogue, totalVocabularyCount }: PanelHeaderProps) => {
       )}
     >
       <div className="flex flex-col gap-3 flex-1 h-fit">
-        <Typography className="uppercase" variant="caption-meta">
+        <Typography className="uppercase font-medium" variant="caption-meta">
           {domain}
         </Typography>
-        <Typography as="h1" variant="h4">
+        <Typography as="h1" variant="h4" className="text-[1.625rem]">
           {name}
         </Typography>
         <Link
           href={url}
           aria-label={`${url} - external link`}
-          className="text-caption flex items-center gap-1 text-gray-500 font-jetbrains-mono hover:underline"
+          className="text-caption text-[0.75rem] flex items-center gap-1 text-gray-500 font-jetbrains-mono hover:underline"
         >
           {url}
           <ExternalLinkIcon className="stroke-gray-500" />

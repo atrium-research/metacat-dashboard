@@ -27,23 +27,23 @@ const typographyConfig = {
   },
   body: {
     element: "p",
-    className: "text-body font-jetbrains-mono",
+    className: "text-body",
   },
   "body-control": {
     element: "p",
-    className: "text-body-control font-jetbrains-mono",
+    className: "text-body-control",
   },
   caption: {
     element: "p",
-    className: "text-caption font-jetbrains-mono",
+    className: "text-caption font-jetbrains-mono text-gray-700",
   },
   "caption-meta": {
     element: "p",
-    className: "text-caption-meta font-jetbrains-mono",
+    className: "text-caption-meta font-jetbrains-mono text-gray-700",
   },
   "caption-link": {
     element: "p",
-    className: "text-caption-link font-outfit",
+    className: "text-caption-link font-jetbrains-mono text-gray-700",
   },
 } satisfies Record<
   string,

@@ -24,14 +24,26 @@ const ExposureTable = ({ id }: ExposureTableProps) => {
         FACET EXPOSURE
       </Typography>
       <Table aria-label="Facet exposure table" className="max-lg:min-w-150">
-        <TableHeader className="text-[0.5625rem] text-gray-500 font-jetbrains-mono font-medium leading-3 ">
-          <Column id="facet" isRowHeader className="text-start pb-4">
+        <TableHeader className="text-[0.5625rem] text-gray-500 font-jetbrains-mono leading-3 ">
+          <Column
+            id="facet"
+            isRowHeader
+            className="text-start pb-4 font-medium"
+          >
             Facet
           </Column>
-          <Column id="total" isRowHeader className="text-start pb-4">
+          <Column
+            id="total"
+            isRowHeader
+            className="text-start pb-4 font-medium"
+          >
             Total
           </Column>
-          <Column id="values" isRowHeader className="text-start pb-4">
+          <Column
+            id="values"
+            isRowHeader
+            className="text-start pb-4 font-medium"
+          >
             Values
           </Column>
         </TableHeader>

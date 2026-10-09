@@ -32,7 +32,7 @@ const PanelHeaderDetails = ({
       ) : (
         <Typography
           as="p"
-          className="text-[0.875rem] text-black-500 leading-4.5"
+          className="text-[0.875rem] text-black-500 leading-4.5 font-outfit"
           variant="h5"
         >
           {formattedValue}

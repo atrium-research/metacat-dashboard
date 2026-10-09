@@ -55,7 +55,7 @@ const ProvenanceSection = ({ id }: ProvenanceSectionProps) => {
               </div>
               <Typography
                 as="p"
-                className="text-[0.75rem] leading-3.75 text-black-500"
+                className="text-[0.75rem] leading-3.75 text-black-500 font-outfit"
                 variant="h5"
               >
                 {step.label}

@@ -59,7 +59,10 @@ const CatalogueDetailPanelSkelton = () => {
         </div>
         <div className="flex flex-col gap-6 h-fit max-lg:w-full lg:min-w-90">
           <div className="flex flex-col rounded-lg border border-beige-600 bg-white-500 gap-3 py-5 px-6">
-            <Typography className="text-gray-700 uppercase" variant="caption">
+            <Typography
+              className="text-gray-700 text-[0.625rem] uppercase"
+              variant="caption"
+            >
               Vocabularies in use
               <span className="w-20 h-3 bg-beige-600/40" aria-hidden="true" />
             </Typography>

@@ -14,13 +14,16 @@ const ChartSummaryBlock = ({
   withMaxWidth = true,
 }: ChartSummaryBlockProps) => (
   <div className={cn("py-4", className)}>
-    <Typography variant="caption" className="uppercase text-black-400">
+    <Typography
+      variant="caption"
+      className="uppercase font-inter! text-black-400!"
+    >
       Chart Summary
     </Typography>
     <Typography
-      variant="caption-meta"
+      variant="body"
       className={clsx(
-        "text-xs leading-relaxed text-black-400",
+        "text-xs! leading-relaxed text-black-400!",
         withMaxWidth && "max-w-5xl",
       )}
     >
