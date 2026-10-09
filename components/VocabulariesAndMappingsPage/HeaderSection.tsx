@@ -18,9 +18,9 @@ export function HeaderSection({
 
   return (
     <div className="flex flex-col gap-8 w-full items-end justify-end xl:flex-row xl:justify-between">
-      <div className="flex flex-col gap-4 flex-1 max-w-full xl:max-w-200">
+      <div className="flex flex-col gap-4 flex-1 max-w-full xl:max-w-200 max-xl:w-full">
         <div className="flex flex-col gap-1">
-          <Typography variant="caption" className="text-[0.6825rem] uppercase">
+          <Typography variant="caption" className="text-[0.6875rem] uppercase">
             WP3 · Catalogue of Catalogues
           </Typography>
           <Typography variant="h1" className="uppercase">

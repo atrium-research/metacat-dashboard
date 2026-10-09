@@ -56,7 +56,7 @@ const CatalogueDetailPanel = ({ catalogue }: CatalogueDetailPanelProps) => {
         <div className="flex flex-col gap-6 h-fit max-lg:w-full lg:min-w-90">
           <div className="flex flex-col rounded-lg border border-beige-600 bg-white-500 gap-3 py-5 px-6">
             <Typography
-              className="text-gray-700 uppercase"
+              className="text-gray-700 uppercase text-[0.625rem]"
               variant="caption"
             >
               Vocabularies in use
@@ -65,17 +65,13 @@ const CatalogueDetailPanel = ({ catalogue }: CatalogueDetailPanelProps) => {
                 {totalVocabularyCount}
               </span>
             </Typography>
-            {catalogueVersionData.vocabularies?.map(
-              (vocabulary) => (
-                <div
-                  key={vocabulary}
-                  className="flex justify-between"
-                >
-                  <Typography className="text-[0.8125rem] font-outfit text-black-500 leading-4">
-                    {vocabulary}
-                  </Typography>
-                </div>
-              ))}
+            {catalogueVersionData.vocabularies?.map((vocabulary) => (
+              <div key={vocabulary} className="flex justify-between">
+                <Typography className="text-[0.8125rem] font-outfit text-black-500 leading-4">
+                  {vocabulary}
+                </Typography>
+              </div>
+            ))}
             <Link
               className={clsx(
                 `text-[0.6875rem] border border-transparent rounded-sm font-outfit leading-3.5 text-${themeColor} underline w-fit`,

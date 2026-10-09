@@ -32,7 +32,7 @@ export function UsageMatrix({ shouldUseSkelton }: UsageMatrixProps): ReactNode {
               <div className="w-20 h-3 bg-beige-600" />
             </div>
           ) : (
-            <Typography variant="caption">
+            <Typography variant="caption" className="text-[0.625rem]">
               {vocabularies.length} VOCABULARIES · {catalogues.length}{" "}
               CATALOGUES
             </Typography>

@@ -18,8 +18,7 @@ import { BlankLinesIcon } from "@/components/ui/Icons/BlankLines";
 import { CatalogueVersion } from "@/types/catalogue-version";
 
 type SourceCardProps = {
-  catalogue: CatalogueVersion &
-    components["schemas"]["Catalogue"];
+  catalogue: CatalogueVersion & components["schemas"]["Catalogue"];
 };
 
 export function SourceCard({
@@ -50,14 +49,17 @@ export function SourceCard({
       )}
     >
       <div className="flex flex-col gap-1 w-full">
-        <Typography variant="caption" className="uppercase text-gray-700">
+        <Typography
+          variant="caption"
+          className="uppercase text-gray-700 text-[0.625rem]"
+        >
           {headingDescription}
         </Typography>
         <Typography variant="h3">{name}</Typography>
         <Link
           href={url}
           aria-label={`${url} - external link`}
-          className="text-caption uppercase flex items-center gap-1 text-gray-500 font-jetbrains-mono hover:underline"
+          className="text-caption uppercase flex items-center gap-1 text-gray-500 font-jetbrains-mono hover:underline text-[0.625rem]"
         >
           {urlDisplayName}
           <ExternalLinkIcon className="stroke-gray-500" />
@@ -89,7 +91,7 @@ export function SourceCard({
 
       <div className="flex flex-col gap-2">
         <div className="flex justify-between">
-          <Typography variant="caption" className="uppercase text-gray-700">
+          <Typography variant="caption" className="uppercase text-[0.625rem]">
             Facet Coverage
           </Typography>
 
@@ -108,7 +110,7 @@ export function SourceCard({
           })}
           {Array.from({ length: 6 - coverageCount }).map((_, index) => (
             <div key={index} className="size-3">
-              <BlankLinesIcon className="" />
+              <BlankLinesIcon className="stroke-beige-600 outline outline-beige-600 rounded-xs" />
             </div>
           ))}
         </div>
