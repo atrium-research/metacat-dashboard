@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-ARG NEXT_PUBLIC_API_BASE_URL=https://agrimonia-150.man.poznan.pl/
+ARG NEXT_PUBLIC_API_BASE_URL=https://agrimonia-150.man.poznan.pl:8001/
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 
 RUN npm run build
