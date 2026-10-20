@@ -10,56 +10,9 @@ import { getThemeColor } from "@/utils/catalogue.utils";
 import { formatDateToFullString } from "@/utils/date.utils";
 import { Link } from "react-aria-components";
 
-const Navbar = () => {
-  const { data: catalogues } = useCatalogueList();
-  const { data: lastUpdate } = useBackupLastUpdate();
-  const snapshotLabel = lastUpdate?.last_update
-    ? formatDateToFullString(new Date(lastUpdate.last_update))
-    : "N/A";
-
+const CompareBlock = ({catalogues}: {catalogues: {id: string}[]}) => {
   return (
-    <nav
-      aria-label="Top navigation"
-      className={
-        "sticky top-0 z-30 w-full border-b border-beige-600 bg-white-500 flex flex-col gap-3 px-4 py-2.5 sm:px-6 md:px-8 md:py-[10.5px] xl:flex-row xl:items-center xl:gap-6"
-      }
-    >
-      <div className="flex items-center gap-2 sm:gap-3 xl:contents">
-        <SidebarToggle className="shrink-0 md:hidden" />
-
-        <SearchInput />
-
-        <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-6 xl:order-3 xl:ml-0">
-          {snapshotLabel && lastUpdate?.last_update ? (
-            <time
-              dateTime={lastUpdate.last_update}
-              className="hidden text-gray-700 text-[0.6875rem] md:block uppercase text-body-control font-jetbrains-mono"
-              aria-label={`Snapshot from ${snapshotLabel}`}
-            >
-              <Link
-                href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/backup/page`}
-                target="_blank"
-                aria-label="Snapshot page"
-                className="hover:underline"
-              >
-                SNAPSHOT {snapshotLabel}
-              </Link>
-            </time>
-          ) : (
-            <Typography
-              variant="body-control"
-              className="hidden text-gray-500 md:block uppercase"
-              aria-label="Snapshot date unavailable"
-            >
-              SNAPSHOT
-            </Typography>
-          )}
-
-          <ExportMenu />
-        </div>
-      </div>
-
-      <div className="flex min-w-0 items-center gap-3 xl:order-2 xl:min-w-0 xl:flex-1">
+      <>
         <Typography variant="body-control" className="shrink-0 text-gray-500">
           COMPARE
         </Typography>
@@ -81,6 +34,62 @@ const Navbar = () => {
             ))}
           </TagGroup>
         </div>
+      </>
+  )
+}
+
+const Navbar = () => {
+  const { data: catalogues } = useCatalogueList();
+  const { data: lastUpdate } = useBackupLastUpdate();
+  const snapshotLabel = lastUpdate?.last_update
+    ? formatDateToFullString(new Date(lastUpdate.last_update))
+    : "N/A";
+
+  return (
+    <nav
+      aria-label="Top navigation"
+      className="sticky top-0 z-30 w-full border-b border-beige-600 bg-white-500 flex flex-col gap-3 px-4 py-2.5 sm:px-6 md:px-8 md:py-[10.5px] xl:flex-row xl:items-center xl:gap-6"
+    >
+      <div className="flex items-center gap-2 sm:gap-3 xl:contents">
+        <SidebarToggle className="shrink-0 md:hidden" />
+        <SearchInput />
+
+        <div className="hidden xl:flex min-w-0 items-center gap-3 xl:order-2 xl:flex-1">
+          <CompareBlock catalogues={catalogues} />
+        </div>
+
+        <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-6 xl:order-3 xl:ml-0">
+          {snapshotLabel && lastUpdate?.last_update ? (
+            <time
+              dateTime={lastUpdate.last_update}
+              className="hidden md:block text-gray-700 text-[0.6875rem] uppercase text-body-control font-jetbrains-mono"
+              aria-label={`Snapshot from ${snapshotLabel}`}
+            >
+              <Link
+                href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/backup/page`}
+                target="_blank"
+                aria-label="Snapshot page"
+                className="hover:underline"
+              >
+                SNAPSHOT {snapshotLabel}
+              </Link>
+            </time>
+          ) : (
+            <Typography
+              variant="body-control"
+              className="hidden md:block text-gray-500 uppercase"
+              aria-label="Snapshot date unavailable"
+            >
+              SNAPSHOT
+            </Typography>
+          )}
+
+          <ExportMenu />
+        </div>
+      </div>
+
+      <div className="flex min-w-0 items-center gap-3 xl:order-2 xl:flex-1 xl:hidden">
+        <CompareBlock catalogues={catalogues} />
       </div>
     </nav>
   );
