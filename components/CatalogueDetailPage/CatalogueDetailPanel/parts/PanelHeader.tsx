@@ -27,6 +27,7 @@ const PanelHeader = ({ catalogue, totalVocabularyCount }: PanelHeaderProps) => {
     harvest_at,
     licence,
     languages_summary,
+    harvest_error,
   } = catalogue;
 
   const themeColor = getThemeColor(id);
@@ -44,6 +45,12 @@ const PanelHeader = ({ catalogue, totalVocabularyCount }: PanelHeaderProps) => {
         </Typography>
         <Typography as="h1" variant="h4" className="text-[1.625rem]">
           {name}
+        </Typography>
+        <Typography
+          variant="caption-meta"
+          className="uppercase text-[0.5625rem] text-red-600"
+        >
+          {harvest_error}
         </Typography>
         <Link
           href={url}

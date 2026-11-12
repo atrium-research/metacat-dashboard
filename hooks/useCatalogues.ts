@@ -17,12 +17,7 @@ export const catalogueKeys = {
   versionsById: (id: string, versionId: string) =>
     [...catalogueKeys.all, "versionsById", id, versionId] as const,
   versionsLastFacetValues: (id: string, query?: FacetValuesQuery) =>
-    [
-      ...catalogueKeys.all,
-      "versionsLastFacetValues",
-      id,
-      query ?? {},
-    ] as const,
+    [...catalogueKeys.all, "versionsLastFacetValues", id, query ?? {}] as const,
 };
 
 export const catalogueEndpoints = {
@@ -72,7 +67,26 @@ export const catalogueQueryOptions = {
         const { data } = await apiInstance.get<CatalogueVersion>(
           catalogueEndpoints.versionsLast(id),
         );
-        return data;
+        if (data.harvest_status === "success") return data;
+
+        const { data: fallbackData } = await apiInstance.get<
+          CatalogueVersion[]
+        >(catalogueEndpoints.versions(id));
+
+        fallbackData.sort(
+          (a, b) =>
+            new Date(b.harvest_at).getTime() - new Date(a.harvest_at).getTime(),
+        );
+
+        const fallbackVersion =
+          fallbackData.find(
+            (version) => version.harvest_status === "success",
+          ) ?? data;
+
+        fallbackVersion.harvest_error =
+          "The latest harvested version of the catalogue is invalid. An older version is displayed.";
+
+        return fallbackVersion;
       },
       enabled: Boolean(id),
       networkMode: "always",
