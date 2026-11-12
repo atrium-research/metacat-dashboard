@@ -33,6 +33,7 @@ export function SourceCard({
     harvest_at,
     facet_exposures,
     licence,
+    harvest_error,
   } = catalogue;
 
   const themeColor = getThemeColor(id);
@@ -130,6 +131,12 @@ export function SourceCard({
           Updated {formatRelativeDate(new Date(harvest_at), true)}
         </Typography>
       </div>
+      <Typography
+        variant="caption-meta"
+        className="uppercase text-[0.5625rem] text-red-600"
+      >
+        {harvest_error}
+      </Typography>
     </div>
   );
 }
